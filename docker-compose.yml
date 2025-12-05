@@ -1,0 +1,591 @@
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"     # RabbitMQ Broker port
+#       - "15672:15672"   # RabbitMQ Management UI
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin
+#     restart: unless-stopped
+
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+
+
+#   user_service:
+#     build: ./user_services
+#     container_name: user_service
+#     env_file:
+#       - ./user_services/.env
+#     ports:
+#       - "8001:8001"
+#     depends_on:
+#       - user_db
+#       - rabbitmq
+
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+
+
+
+
+
+
+
+
+
+
+
+# version: "3.9"
+
+# networks:
+#   micro_net:         # <--- Shared network for all services
+#     driver: bridge
+
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+#     networks:
+#       - micro_net
+
+#     user_service:
+#       build:
+#         context: ./user_services/user_service
+#         dockerfile: Dockerfile
+#       container_name: user_service
+#       env_file:
+#         - ./user_services/user_service/.env
+#       ports:
+#         - "8001:8001"
+#       depends_on:
+#         - user_db
+#         - rabbitmq
+#         - auth_service
+#       volumes:
+#         - ./user_services/user_service:/app
+#         - ./user_services:/app/user_services   # <-- IMPORTANT
+#       networks:
+#         - micro_net
+
+
+
+# version: "3.9"
+
+# networks:
+#   micro_net:
+#     driver: bridge
+
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+#     networks:
+#       - micro_net
+
+#   user_service:
+#   build:
+#     context: ./user_services/user_service
+#     dockerfile: Dockerfile
+#   container_name: user_service
+#   env_file:
+#     - ./user_services/user_service/.env
+#   volumes:
+#     - ./user_services/user_service:/app
+#   ports:
+#     - "8001:8001"
+#   depends_on:
+#     - user_db
+#     - rabbitmq
+#     - auth_service
+#   networks:
+#     - micro_net
+
+
+
+# version: "3.9"
+
+# networks:
+#   micro_net:
+#     driver: bridge
+
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+#     networks:
+#       - micro_net
+
+#   user_service:
+#     build:
+#       context: ./user_services/user_service
+#       dockerfile: Dockerfile
+
+#     container_name: user_service
+#     env_file:
+#       - ./user_services/user_service/user_service/.env
+#     volumes:
+#       - ./user_services/user_service:/app
+#     ports:
+#       - "8001:8001"
+#     depends_on:
+#       - user_db
+#       - rabbitmq
+#       - auth_service
+#     networks:
+#       - micro_net
+
+
+
+
+
+# version: "3.9"
+
+# networks:
+#   micro_net:
+#     driver: bridge
+
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     rabbitmq:
+#       environment:
+#         RABBITMQ_DEFAULT_USER: admin
+#         RABBITMQ_DEFAULT_PASS: admin
+
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+#     networks:
+#       - micro_net
+
+#   user_service:
+#     build:
+#       context: ./user_services/user_service
+#       dockerfile: Dockerfile
+
+#     container_name: user_service
+
+#     env_file:
+#       - ./user_services/.env   # <-- MOVE ALL ENV TO THIS FILE
+
+#     environment:
+#       DJANGO_SETTINGS_MODULE: user_service.settings
+
+#     volumes:
+#       - ./user_services/user_service:/app
+
+#     ports:
+#       - "8001:8001"
+
+#     depends_on:
+#       - user_db
+#       - rabbitmq
+#       - auth_service
+
+#     networks:
+#       - micro_net
+
+
+
+
+# version: "3.9"
+
+# networks:
+#   micro_net:
+#     driver: bridge
+
+# services:
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_db:
+#     image: postgres:14
+#     container_name: auth_db
+#     environment:
+#       POSTGRES_DB: authdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5433:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   user_db:
+#     image: postgres:14
+#     container_name: user_db
+#     environment:
+#       POSTGRES_DB: userdb
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     ports:
+#       - "5434:5432"
+#     restart: unless-stopped
+#     networks:
+#       - micro_net
+
+#   auth_service:
+#     build: ./auth_services
+#     container_name: auth_service
+#     env_file:
+#       - ./auth_services/.env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - auth_db
+#       - rabbitmq
+#     networks:
+#       - micro_net
+
+#   user_service:
+#     build:
+#       context: ./user_services/user_service
+#       dockerfile: Dockerfile
+#     container_name: user_service
+
+#     env_file:
+#       - ./user_services/.env
+
+#     environment:
+#       DJANGO_SETTINGS_MODULE: user_service.settings
+#       PORT: 8001
+#     volumes:
+#       - ./user_services/user_service:/app
+
+#     ports:
+#       - "8001:8001"
+
+#     depends_on:
+#       - user_db
+#       - rabbitmq
+#       - auth_service
+
+#     networks:
+#       - micro_net
+
+
+
+
+
+
+
+
+version: "3.9"
+
+networks:
+  micro_net:
+    driver: bridge
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: unless-stopped
+    networks:
+      - micro_net
+
+  auth_db:
+    image: postgres:14
+    container_name: auth_db
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    networks:
+      - micro_net
+
+  user_db:
+    image: postgres:14
+    container_name: user_db
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
+    networks:
+      - micro_net
+
+  auth_service:
+    build: ./auth_services
+    container_name: auth_service
+    env_file:
+      - ./auth_services/.env
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin
+      RABBITMQ_QUEUE: user_events
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth_db
+      - rabbitmq
+    networks:
+      - micro_net
+
+  user_service:
+    build:
+      context: ./user_services/user_service
+      dockerfile: Dockerfile
+    container_name: user_service
+    env_file:
+      - ./user_services/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: user_service.settings
+      PORT: 8001
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin
+      RABBITMQ_QUEUE: user_events
+    volumes:
+      - ./user_services/user_service:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - user_db
+      - rabbitmq
+      - auth_service
+    networks:
+      - micro_net

@@ -1,0 +1,11 @@
+Django==5.0.2
+djangorestframework
+djangorestframework-simplejwt
+psycopg2-binary
+python-decouple
+pika==1.3.2
+requests
+Pillow
+
+django-cors-headers
+python-dotenv
