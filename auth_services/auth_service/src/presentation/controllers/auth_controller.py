@@ -45,7 +45,13 @@ class RegisterView(APIView):
         publish_user_created_event(
             user_id=user.id,
             email=user.email,
-            username=user.first_name or user.email
+            username=user.first_name or user.email,
+            first_name=user.first_name,
+            role=user.role,
+            last_name=user.last_name
+
+            
+
         )
 
         # Create OTP and send email

@@ -7,9 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceUser:
-    """
-    Lightweight user used when user does NOT exist in this microservice.
-    """
+    """A lightweight user identified ONLY by JWT user_id."""
     def __init__(self, user_id):
         self.id = user_id
         self.pk = user_id
@@ -21,6 +19,22 @@ class ServiceUser:
 
 class SharedJWTAuthentication(JWTAuthentication):
 
+    def get_user(self, validated_token):
+        """
+        Override default behavior:
+        DO NOT try to load a Django user from DB.
+        Always return ServiceUser.
+        """
+        claim = settings.SIMPLE_JWT.get("USER_ID_CLAIM", "user_id")
+        user_id = validated_token.payload.get(
+            claim
+        ) or validated_token.payload.get("sub") or validated_token.payload.get("id")
+
+        if not user_id:
+            raise AuthenticationFailed("User ID missing in token.")
+
+        return ServiceUser(str(user_id))
+
     def authenticate(self, request):
         header = self.get_header(request)
         if header is None:
@@ -30,15 +44,17 @@ class SharedJWTAuthentication(JWTAuthentication):
         if raw_token is None:
             return None
 
+        # Validate JWT
         try:
             validated_token = self.get_validated_token(raw_token)
         except Exception:
             logger.exception("Token validation failed")
             raise AuthenticationFailed("Invalid token")
 
-        # ✔ ALWAYS USE validated_token.payload (never dict(validated_token))
-        payload = validated_token.payload
-        logger.debug("JWT Payload -> %s", payload)
+        # ALWAYS return ServiceUser
+        user = self.get_user(validated_token)
+        return (user, validated_token)
+
 
         # ✔ Use correct claim
         claim = settings.SIMPLE_JWT.get("USER_ID_CLAIM", "user_id")

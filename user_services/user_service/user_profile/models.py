@@ -18,6 +18,8 @@ class Profile(models.Model):
     location = models.CharField(max_length=255, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload_path, null=True, blank=True)
 
+    role = models.CharField(max_length=20, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

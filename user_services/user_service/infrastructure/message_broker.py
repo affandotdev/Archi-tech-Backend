@@ -8,7 +8,8 @@ RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", "admin")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "admin")
-QUEUE_NAME = os.getenv("RABBITMQ_QUEUE", "user_events")
+RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
+
 
 
 def handle_user_created_event(data):
@@ -36,7 +37,7 @@ def start_user_created_consumer():
                 )
 
                 channel = connection.channel()
-                channel.queue_declare(queue=QUEUE_NAME, durable=True)
+                channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
 
                 print("🟢 RabbitMQ consumer listening…")
 
@@ -48,7 +49,7 @@ def start_user_created_consumer():
                         handle_user_created_event(data)
 
                 channel.basic_consume(
-                    queue=QUEUE_NAME,
+                    queue=RABBITMQ_QUEUE,
                     on_message_callback=callback,
                     auto_ack=True
                 )
