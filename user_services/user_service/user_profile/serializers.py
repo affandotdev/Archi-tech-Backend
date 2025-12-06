@@ -16,6 +16,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "full_name",
             "bio",
             "location",
+            "role",
             "avatar",
             "avatar_url",
             "created_at",
@@ -27,13 +28,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "full_name",
-            "avatar_url",
         ]
 
     def get_avatar_url(self, obj):
-        """
-        Return absolute URL for avatar (for frontend display)
-        """
         request = self.context.get("request")
         if obj.avatar:
             if request:
@@ -42,9 +39,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         return None
 
     def get_full_name(self, obj):
-        """
-        Combine first_name + last_name → "John Doe"
-        """
         if obj.first_name or obj.last_name:
             return f"{obj.first_name} {obj.last_name}".strip()
         return None

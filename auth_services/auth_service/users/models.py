@@ -14,7 +14,7 @@ class User(AbstractUser):
 
     username = None  # ❗ Remove username field (optional but recommended)
     email = models.EmailField(unique=True)  # ❗ Make email required & unique
-
+    
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="client")
     phone = models.CharField(max_length=20, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
@@ -61,6 +61,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255, blank=True)
     bio = models.TextField(blank=True)
+    role = models.CharField(max_length=50, blank=True, default="client")
     profile_image = models.ImageField(upload_to="profiles/", blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=255, blank=True)

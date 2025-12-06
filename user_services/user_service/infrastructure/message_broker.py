@@ -14,12 +14,33 @@ RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
 
 def handle_user_created_event(data):
     from user_profile.models import Profile
+    import traceback
 
-    Profile.objects.create(
-        auth_user_id=data["id"],
-        first_name=data.get("username", ""),
-        last_name=""
-    )
+    try:
+        auth_user_id = data.get("id")
+        if not auth_user_id:
+            print("❌ Error: Missing user ID in event data")
+            return
+
+        first_name = data.get("first_name", "")
+        last_name = data.get("last_name", "")
+        role = data.get("role", "client")
+
+        # Use update_or_create to avoid duplicates and update existing profiles
+        profile, created = Profile.objects.update_or_create(
+            auth_user_id=auth_user_id,
+            defaults={
+                "first_name": first_name,
+                "last_name": last_name,
+                "role": role,
+            }
+        )
+
+        action = "created" if created else "updated"
+        print(f"✅ Profile {action} for user {auth_user_id} with role: {role}")
+    except Exception as e:
+        print(f"❌ Error handling user created event: {str(e)}")
+        traceback.print_exc()
 
 
 def start_user_created_consumer():

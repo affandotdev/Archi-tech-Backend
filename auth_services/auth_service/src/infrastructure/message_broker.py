@@ -9,7 +9,7 @@ RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "admin")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
 
 
-def publish_user_created_event(user_id, email, username,first_name,last_name,role):
+def publish_user_created_event(user_id, email, username, first_name, last_name, role):
     try:
         credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
 
@@ -23,17 +23,14 @@ def publish_user_created_event(user_id, email, username,first_name,last_name,rol
 
         channel = connection.channel()
         channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
-
         message = {
-            "event": "USER_CREATED",
-            "id": user_id,
-            "email": email,
-            "username": username,
-            "first_name": first_name,
-            "last_name": last_name,
-            "role": role,
+        "event": "USER_CREATED",
+        "id": user_id,
+        "email": email,
+        "first_name": first_name or "",
+        "last_name": last_name or "",
+        "role": role or "client",
         }
-
         channel.basic_publish(
             exchange="",
             routing_key=RABBITMQ_QUEUE,

@@ -1,12 +1,10 @@
 import json
 import pika
 import os
-from django.conf import settings
 from user_profile.models import Profile
 
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
-
 
 
 def start_consumer():
@@ -19,31 +17,30 @@ def start_consumer():
 
     def callback(ch, method, properties, body):
         event = json.loads(body)
-        print("🔥 EVENT RECEIVED:", event)
+        print("📥 Event received:", event)
 
-        auth_user_id = event.get("id")
-        first_name = event.get("first_name", "")
-        last_name = event.get("last_name", "")
-        role = event.get("role", "")
+        auth_id = event.get("id")
+        first = event.get("first_name") or ""
+        last = event.get("last_name") or ""
+        role = event.get("role") or "client"
 
-        # Create or update Profile
+        # 🔥 FIX: ALWAYS UPDATE OR CREATE
         profile, created = Profile.objects.update_or_create(
-            auth_user_id=event["id"],
+            auth_user_id=auth_id,
             defaults={
-            "first_name": event.get("first_name", ""),
-            "last_name": event.get("last_name", ""),
-            "role": event.get("role", "client"),   # default client
-        }
-    )
+                "first_name": first,
+                "last_name": last,
+                "role": role,
+            },
+        )
 
-
-        print("✅ Profile saved for user:", auth_user_id)
+        print("✅ Profile saved:", profile.auth_user_id)
 
     channel.basic_consume(
         queue=RABBITMQ_QUEUE,
         on_message_callback=callback,
-        auto_ack=True
+        auto_ack=True,
     )
 
-    print("👂 User Service listening for events...")
+    print("🟢 RabbitMQ consumer listening…")
     channel.start_consuming()

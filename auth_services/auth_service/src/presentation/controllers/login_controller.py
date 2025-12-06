@@ -9,10 +9,6 @@ from users.models import User
     
 
 
-
-
-
-
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")

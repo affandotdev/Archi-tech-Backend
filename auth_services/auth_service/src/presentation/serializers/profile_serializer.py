@@ -12,6 +12,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "bio",
             "profile_image",
             "phone",
+            "role",
             "location",
             "skills",
             "experience",
