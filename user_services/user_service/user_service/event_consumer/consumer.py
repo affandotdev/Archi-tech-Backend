@@ -44,3 +44,9 @@ def start_consumer():
 
     print("🟢 RabbitMQ consumer listening…")
     channel.start_consuming()
+
+
+
+
+
+#testing
