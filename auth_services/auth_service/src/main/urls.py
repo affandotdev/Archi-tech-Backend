@@ -26,6 +26,7 @@ from src.presentation.controllers.oauth_controller import GoogleAuthView
 from src.presentation.controllers.auth_controller import TrustDeviceView
 from src.presentation.controllers.mfa_controller import MFASetupView, VerifyMFAView
 from src.presentation.controllers.auth_controller import TrustDeviceView
+from src.presentation.controllers import admin_user_controller
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -59,6 +60,14 @@ auth_urlpatterns = [
     path("profile/", UserProfileController.as_view()),
     path("profile/update/", UserProfileUpdateController.as_view()),
     path("profile/upload-image/", UserProfileImageUploadController.as_view()),
+
+    # Admin Routes
+    path("admin/users/", admin_user_controller.AdminUserListController.as_view()),
+    path("admin/users/<int:user_id>/", admin_user_controller.AdminUserDetailController.as_view()),
+    path("admin/users/<int:user_id>/status/", admin_user_controller.AdminUserStatusController.as_view()),
+    path("admin/users/<int:user_id>/role/", admin_user_controller.AdminUserRoleController.as_view()),
+    path("admin/users/<int:user_id>/verify/", admin_user_controller.AdminUserVerifyController.as_view()),
+    path("admin/dashboard/stats/", admin_user_controller.AdminDashboardStatsController.as_view()),
 ]
 
 

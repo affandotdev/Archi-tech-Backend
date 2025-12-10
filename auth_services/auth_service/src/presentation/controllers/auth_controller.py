@@ -48,10 +48,7 @@ class RegisterView(APIView):
             username=user.first_name or user.email,
             first_name=user.first_name,
             role=user.role,
-            last_name=user.last_name
-
-            
-
+            last_name=user.last_name            
         )
 
         # Create OTP and send email
