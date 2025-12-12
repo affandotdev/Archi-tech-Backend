@@ -7,6 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from .models import Profile
 from .serializers import ProfileSerializer
+from infrastructure.message_broker import publish_profile_updated
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,11 @@ class ProfileMeAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        serializer.save()
+
+        # 🔥 Publish Event
+        publish_profile_updated(user_id, serializer.data)
+
         return Response(serializer.data, status=201)
 
     def put(self, request):
@@ -78,6 +84,11 @@ class ProfileMeAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        serializer.save()
+
+        # 🔥 Publish Event
+        publish_profile_updated(user_id, serializer.data)
+
         return Response(serializer.data, status=200 if profile else 201)
 
     def patch(self, request):
@@ -96,6 +107,11 @@ class ProfileMeAPIView(APIView):
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        serializer.save()
+
+        # 🔥 Publish Event
+        publish_profile_updated(user_id, serializer.data)
 
         return Response(serializer.data, status=200)
 
@@ -150,6 +166,11 @@ class ProfileDetailAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        serializer.save()
+
+        # 🔥 Publish Event
+        publish_profile_updated(profile.auth_user_id, serializer.data)
+
         return Response(serializer.data, status=200)
 
     def delete(self, request, id):
@@ -157,5 +178,6 @@ class ProfileDetailAPIView(APIView):
         if not profile:
             return Response({"detail": "Profile not found"}, status=404)
 
+        profile.delete()
         profile.delete()
         return Response({"detail": "Profile deleted"}, status=204)

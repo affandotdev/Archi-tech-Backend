@@ -7,6 +7,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from src.presentation.serializers.admin_serializer import AdminUserSerializer
+from src.infrastructure.message_broker import publish_user_updated_event
 
 User = get_user_model()
 
@@ -92,6 +93,10 @@ class AdminUserStatusController(APIView):
                 return Response({"error": "Status required"}, status=400)
             user.is_active = is_active
             user.save()
+            
+            # 🔥 Publish Event
+            publish_user_updated_event(user.id, {"is_active": is_active})
+
             return Response({"message": "Status updated"})
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
@@ -112,6 +117,10 @@ class AdminUserRoleController(APIView):
                 return Response({"error": "Role required"}, status=400)
             user.role = role
             user.save()
+
+            # 🔥 Publish Event
+            publish_user_updated_event(user.id, {"role": role})
+
             return Response({"message": "Role updated"})
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
