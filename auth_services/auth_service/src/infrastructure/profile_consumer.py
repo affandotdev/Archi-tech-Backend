@@ -1,54 +1,57 @@
 import json
 import pika
-import threading
 from django.conf import settings
 from users.models import User
 
-def handle_profile_updated(data):
-    user_id = data.get("auth_user_id")
-    first_name = data.get("first_name")
-    last_name = data.get("last_name")
 
-    user = User.objects.filter(id=user_id).first()
-    if user:
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
-        print("✅ AUTH SERVICE UPDATED USER NAME")
-    else:
-        print("⚠️ User not found in auth service")
+def start_profile_consumer():
+    try:
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host=settings.RABBITMQ_HOST,
+                port=settings.RABBITMQ_PORT,
+                credentials=pika.PlainCredentials(
+                    settings.RABBITMQ_USER,
+                    settings.RABBITMQ_PASS
+                )
+            )
+        )
 
-def run():
-    def start():
-        while True:
+        channel = connection.channel()
+        channel.queue_declare(queue=settings.RABBITMQ_QUEUE, durable=True)
+
+        print("📥 Auth service is listening for PROFILE_UPDATED events...")
+
+        def callback(ch, method, properties, body):
             try:
-                connection = pika.BlockingConnection(
-                    pika.ConnectionParameters(host="rabbitmq")
-                )
-                channel = connection.channel()
+                data = json.loads(body)
 
-                channel.queue_declare(queue="profile_updates", durable=True)
-                print("🟢 AUTH SERVICE LISTENING ON profile_updates")
+                if data.get("event") != "PROFILE_UPDATED":
+                    return
 
-                def callback(ch, method, properties, body):
-                    event = json.loads(body.decode())
-                    print("📥 RECEIVED:", event)
+                user_id = data.get("auth_user_id")
+                first_name = data.get("first_name")
+                last_name = data.get("last_name")
+                role = data.get("role")
 
-                    if event.get("event") == "PROFILE_UPDATED":
-                        handle_profile_updated(event)
-
-                    ch.basic_ack(delivery_tag=method.delivery_tag)
-
-                channel.basic_consume(
-                    queue="profile_updates",
-                    on_message_callback=callback
+                User.objects.filter(id=user_id).update(
+                    first_name=first_name,
+                    last_name=last_name,
+                    role=role
                 )
 
-                channel.start_consuming()
+                print(f"✔ Updated auth user {user_id} from PROFILE_UPDATED event")
 
             except Exception as e:
-                print("❌ Consumer crashed:", e)
+                print("❌ Error handling event:", e)
 
-    thread = threading.Thread(target=start)
-    thread.daemon = True
-    thread.start()
+        channel.basic_consume(
+            queue=settings.RABBITMQ_QUEUE,
+            on_message_callback=callback,
+            auto_ack=True
+        )
+
+        channel.start_consuming()
+
+    except Exception as e:
+        print("❌ Consumer crashed:", e)

@@ -5,28 +5,36 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
 
-from django.urls import path
-
-
+# Profile controllers
 from src.presentation.controllers.profile_controller import (
-    UserProfileController,UserProfileUpdateController,UserProfileImageUploadController
+    UserProfileController,
+    UserProfileUpdateController,
+    UserProfileImageUploadController,
 )
 
-
-from src.presentation.controllers.auth_controller import RegisterView
+# Auth controllers
+from src.presentation.controllers.auth_controller import RegisterView, TrustDeviceView
 from src.presentation.controllers.otp_controller import VerifyOTPView
 from src.presentation.controllers.login_controller import LoginView
 from src.presentation.controllers.logout_controller import LogoutView
 from src.presentation.controllers.password_controller import ChangePasswordView
-from src.presentation.controllers.reset_password_controller import ForgotPasswordView, ResetPasswordConfirmView
+from src.presentation.controllers.reset_password_controller import (
+    ForgotPasswordView,
+    ResetPasswordConfirmView,
+)
 
-
-# from src.presentation.controllers.oauth_controller import OAuthLoginView
 from src.presentation.controllers.oauth_controller import GoogleAuthView
-from src.presentation.controllers.auth_controller import TrustDeviceView
 from src.presentation.controllers.mfa_controller import MFASetupView, VerifyMFAView
-from src.presentation.controllers.auth_controller import TrustDeviceView
+
 from src.presentation.controllers import admin_user_controller
+
+# ✅ FIXED IMPORT (100% correct)
+from src.presentation.controllers.ProfessionRequest_controller import (
+    SubmitProfessionRequestView,
+    ListProfessionRequestsView,
+    ApproveProfessionView,
+    RejectProfessionView,
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -56,7 +64,7 @@ auth_urlpatterns = [
     # OAuth
     path('oauth/google/', GoogleAuthView.as_view()),
 
-    # Profile
+    # Profile routes
     path("profile/", UserProfileController.as_view()),
     path("profile/update/", UserProfileUpdateController.as_view()),
     path("profile/upload-image/", UserProfileImageUploadController.as_view()),
@@ -68,32 +76,25 @@ auth_urlpatterns = [
     path("admin/users/<int:user_id>/role/", admin_user_controller.AdminUserRoleController.as_view()),
     path("admin/users/<int:user_id>/verify/", admin_user_controller.AdminUserVerifyController.as_view()),
     path("admin/dashboard/stats/", admin_user_controller.AdminDashboardStatsController.as_view()),
-]
 
+    # Profession Request (NEW)
+    path("profession-request/", SubmitProfessionRequestView.as_view()),
+    path("admin/profession-requests/", ListProfessionRequestsView.as_view()),
+    path("admin/profession-request/<int:pk>/approve/", ApproveProfessionView.as_view()),
+    path("admin/profession-request/<int:pk>/reject/", RejectProfessionView.as_view()),
+]
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Your custom authentication controllers
     path('api/auth/', include(auth_urlpatterns)),
-
-    # ❌ REMOVE THIS — It breaks your GoogleAuthView endpoint
-    # path('api/auth/oauth/', include('social_django.urls', namespace='social')),
 ]
 
-
-# Swagger routes
 urlpatterns += [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0),
             name='schema-json'),
 
-    path('swagger/', 
-         schema_view.with_ui('swagger', cache_timeout=0),
-         name='schema-swagger-ui'),
-
-    path('redoc/', 
-         schema_view.with_ui('redoc', cache_timeout=0),
-         name='schema-redoc'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

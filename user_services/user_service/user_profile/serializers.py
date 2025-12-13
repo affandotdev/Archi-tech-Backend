@@ -28,6 +28,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "full_name",
+            "role",
         ]
 
     def get_avatar_url(self, obj):

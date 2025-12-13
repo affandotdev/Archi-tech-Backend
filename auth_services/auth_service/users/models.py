@@ -3,7 +3,11 @@ from django.db import models
 from django.utils import timezone
 from .managers import CustomUserManager
 import uuid
+from django.conf import settings
 
+# ---------------------------------------------------------
+# CUSTOM USER MODEL
+# ---------------------------------------------------------
 class User(AbstractUser):
     ROLE_CHOICES = (
         ('architect', 'Architect'),
@@ -12,9 +16,9 @@ class User(AbstractUser):
         ('admin', 'Admin'),
     )
 
-    username = None  # ❗ Remove username field (optional but recommended)
-    email = models.EmailField(unique=True)  # ❗ Make email required & unique
-    
+    username = None
+    email = models.EmailField(unique=True)
+
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="client")
     phone = models.CharField(max_length=20, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
@@ -22,13 +26,16 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = "email"        # 🔥 IMPORTANT
-    REQUIRED_FIELDS = []            # 🔥 IMPORTANT
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.email
 
 
+# ---------------------------------------------------------
+# EMAIL OTP MODEL
+# ---------------------------------------------------------
 class EmailOTP(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(db_index=True)
@@ -47,16 +54,19 @@ class EmailOTP(models.Model):
         ]
 
 
+# ---------------------------------------------------------
+# MFA DEVICE MODEL
+# ---------------------------------------------------------
 class MFADevice(models.Model):
-    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='mfa_device')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mfa_device')
     secret = models.CharField(max_length=64, null=True, blank=True)
     confirmed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-from django.db import models
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
 
+# ---------------------------------------------------------
+# USER PROFILE MODEL (NEW)
+# ---------------------------------------------------------
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255, blank=True)
@@ -77,4 +87,33 @@ class UserProfile(models.Model):
 
 
 
-#testing
+
+class ProfessionalRequest(models.Model):
+    ROLE_CHOICES = [
+        ("engineer", "Engineer"),
+        ("architect", "Architect"),
+    ]
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="professional_requests"
+    )
+    requested_role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    document = models.FileField(upload_to="verification_docs/", null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    admin_comment = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.email} requested {self.requested_role} ({self.status})"
