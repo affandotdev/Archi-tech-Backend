@@ -132,14 +132,9 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "src.common.exceptions.custom_exception.custom_exception_handler",
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "ALGORITHM": os.getenv("JWT_ALGORITHM", "HS256"),
-    "SIGNING_KEY": os.getenv("JWT_SECRET_KEY"),
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
 
-print(">>> AUTH SERVICE: SIMPLE_JWT SIGNING_KEY ->", SIMPLE_JWT["SIGNING_KEY"])
+
+
 
 
 # ============================================
@@ -218,9 +213,11 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = "/login/"
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 SIMPLE_JWT = {
-    "SIGNING_KEY": JWT_SECRET_KEY,
-    "ALGORITHM": "HS256",
-    "USER_ID_CLAIM": "user_id"
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ALGORITHM": os.getenv("JWT_ALGORITHM", "HS256"),
+    "SIGNING_KEY": os.getenv("JWT_SECRET_KEY"),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_CLAIM": "user_id",
 }
 
 print(">>> JWT_SECRET_KEY =", JWT_SECRET_KEY)

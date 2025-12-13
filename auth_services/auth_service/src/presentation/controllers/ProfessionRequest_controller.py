@@ -14,11 +14,8 @@ class SubmitProfessionRequestView(APIView):
     def post(self, request):
         user = request.user
 
-        if user.role not in ["architect", "engineer"]:
-            return Response(
-                {"message": "Only architects or engineers can submit profession requests"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+
+
 
         if ProfessionalRequest.objects.filter(
             user=user, status__in=["pending", "approved"]
