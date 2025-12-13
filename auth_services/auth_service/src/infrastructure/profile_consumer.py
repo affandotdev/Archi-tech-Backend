@@ -36,8 +36,7 @@ def start_profile_consumer():
 
                 User.objects.filter(id=user_id).update(
                     first_name=first_name,
-                    last_name=last_name,
-                    role=role
+                    last_name=last_name
                 )
 
                 print(f"✔ Updated auth user {user_id} from PROFILE_UPDATED event")
