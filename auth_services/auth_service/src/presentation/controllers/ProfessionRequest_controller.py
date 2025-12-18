@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from users.models import ProfessionalRequest  # adjust if your model name differs
+from users.models import ProfessionalRequest  
 from src.presentation.serializers.ProfessionRequest import ProfessionRequestSerializer
 
 
@@ -12,10 +12,10 @@ class SubmitProfessionRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        from django.conf import settings
+        print(f"DEBUG_JWT_KEY: {settings.SIMPLE_JWT.get('SIGNING_KEY')}")
+        print(f"DEBUG_AUTH_HEADER: {request.headers.get('Authorization')}")
         user = request.user
-
-
-
 
         if ProfessionalRequest.objects.filter(
             user=user, status__in=["pending", "approved"]

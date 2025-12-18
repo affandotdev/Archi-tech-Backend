@@ -44,23 +44,54 @@ def publish_message(message: dict):
     except Exception:
         logger.exception("Failed to publish message: %s", message)
 
-def publish_user_created_event(user_id, email, username=None, first_name=None, last_name=None, role=None):
+def publish_user_updated_event(user_id, data: dict):
+    SAFE_FIELDS = {
+        "first_name",
+        "last_name",
+        "bio",
+        "location",
+        "avatar_url",
+    }
+
+    clean_data = {k: v for k, v in data.items() if k in SAFE_FIELDS}
+
     message = {
-        "event": "USER_CREATED",
-        "id": user_id,
-        "email": email,
-        "username": username or "",
-        "first_name": first_name or "",
-        "last_name": last_name or "",
-        "role": role or "client",
+        "event": "PROFILE_UPDATED",
+        "user_id": user_id,
+        "changes": clean_data,
     }
     publish_message(message)
 
-def publish_user_updated_event(user_id, data: dict):
+
+# def publish_user_updated_event(user_id, data: dict):
+#     message = {
+#         "event": "PROFILE_UPDATED",
+#         "id": user_id,
+#         **data
+#     }
+#     publish_message(message)
+
+
+
+def publish_user_role_updated_event(user_id, role, is_verified=True):
     message = {
-        "event": "PROFILE_UPDATED",
-        "id": user_id,
-        **data
+        "event": "USER_ROLE_UPDATED",
+        "user_id": user_id,
+        "role": role,
+        "is_verified": is_verified,
+    }
+    publish_message(message)
+
+
+def publish_user_created_event(user_id, email, username, first_name, role, last_name):
+    message = {
+        "event": "USER_CREATED",
+        "user_id": user_id,
+        "email": email,
+        "username": username,
+        "first_name": first_name,
+        "role": role,
+        "last_name": last_name
     }
     publish_message(message)
 
