@@ -76,6 +76,7 @@ auth_urlpatterns = [
     path("admin/users/<int:user_id>/role/", admin_user_controller.AdminUserRoleController.as_view()),
     path("admin/users/<int:user_id>/verify/", admin_user_controller.AdminUserVerifyController.as_view()),
     path("admin/dashboard/stats/", admin_user_controller.AdminDashboardStatsController.as_view()),
+    path("admin/dashboard/health/", admin_user_controller.AdminSystemHealthController.as_view()),
 
     # Profession Request (NEW)
     path("profession-request/", SubmitProfessionRequestView.as_view()),

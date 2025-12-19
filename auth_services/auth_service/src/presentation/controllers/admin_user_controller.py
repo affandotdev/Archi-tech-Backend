@@ -144,18 +144,26 @@ class AdminDashboardStatsController(APIView):
 
     def get(self, request):
         total_users = User.objects.count()
-        active_users = User.objects.filter(is_active=True).count()
-        verified_users = User.objects.filter(is_verified=True).count()
+        # Using active users as a proxy for "Active Sessions" for now
+        active_sessions = User.objects.filter(is_active=True).count()
+        # Placeholder for incidents
+        open_incidents = 0 
         
-        roles = {
-            "architect": User.objects.filter(role="architect").count(),
-            "engineer": User.objects.filter(role="engineer").count(),
-            "client": User.objects.filter(role="client").count(),
-            "admin": User.objects.filter(role="admin").count(),
-        }
         return Response({
-            "total_users": total_users,
-            "active_users": active_users,
-            "verified_users": verified_users,
-            "roles": roles
+            "totalUsers": total_users,
+            "activeSessions": active_sessions,
+            "openIncidents": open_incidents,
+        })
+
+
+class AdminSystemHealthController(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Mock health check for now. In a real system, you'd ping dependencies.
+        return Response({
+            "auth": "Operational",
+            "user": "Operational",
+            "notifications": "Operational",
+            "database": "Connected"
         })
