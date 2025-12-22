@@ -555,6 +555,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin
+      RABBITMQ_VHOST: /
       RABBITMQ_QUEUE: user_events
     ports:
       - "8000:8000"
@@ -578,9 +579,11 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin
+      RABBITMQ_VHOST: /
       RABBITMQ_QUEUE: user_events
     volumes:
       - ./user_services/user_service:/app
+
     ports:
       - "8001:8001"
     depends_on:
@@ -589,3 +592,13 @@ services:
       - auth_service
     networks:
       - micro_net
+
+  # user_consumer:
+  # build: .
+  # command: python user_service/event_consumer/consumer.py
+  # depends_on:
+  #   - rabbitmq
+  #   - user_db
+  # env_file:
+  #   - .env
+    

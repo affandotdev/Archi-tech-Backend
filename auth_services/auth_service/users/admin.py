@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import User, UserProfile, EmailOTP, MFADevice
-
+from src.infrastructure.message_broker import publish_user_role_updated_event
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -70,6 +70,25 @@ class CustomUserAdmin(UserAdmin):
     )
 
     readonly_fields = ("date_joined", "last_login")
+
+
+
+    def save_model(self, request, obj, form, change):
+        role_changed = False
+
+        if change:
+            old = User.objects.get(pk=obj.pk)
+            if old.role != obj.role:
+                role_changed = True
+
+        super().save_model(request, obj, form, change)
+
+        if role_changed:
+            publish_user_role_updated_event(
+                user_id=obj.id,
+                role=obj.role,
+                is_verified=obj.is_verified,
+            )
 
 
 @admin.register(UserProfile)

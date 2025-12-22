@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny
 from django.utils.timezone import now, timedelta
 
 
-from infrastructure.message_broker import publish_user_created_event
+# from infrastructure.message_broker import publish_user_created_event
 
 
 User = get_user_model()
@@ -42,14 +42,12 @@ class RegisterView(APIView):
         user.save()
 
         # 📤 PUBLISH EVENT TO RABBITMQ
-        publish_user_created_event(
-            user_id=user.id,
-            email=user.email,
-            username=user.first_name or user.email,
-            first_name=user.first_name,
-            role=user.role,
-            last_name=user.last_name            
-        )
+        # publish_user_created_event(
+        #     user_id=user.id,
+        #     email=user.email,
+        #     first_name=user.first_name,
+        #     last_name=user.last_name            
+        # )
 
         # Create OTP and send email
         otp_obj = create_email_otp(user.email, purpose='registration')

@@ -20,7 +20,7 @@ class SendConnectionRequest(APIView):
             return Response({"detail": "cannot request yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
         target = get_object_or_404(User, pk=target_id)
-        # Prevent duplicate
+ 
         obj, created = ConnectionRequest.objects.get_or_create(requester=request.user, target=target)
         if not created:
             return Response({"detail": "request already exists", "status": obj.status}, status=status.HTTP_200_OK)

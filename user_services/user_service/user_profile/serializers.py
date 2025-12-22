@@ -5,6 +5,7 @@ from .models import Profile
 class ProfileSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -43,6 +44,13 @@ class ProfileSerializer(serializers.ModelSerializer):
         if obj.first_name or obj.last_name:
             return f"{obj.first_name} {obj.last_name}".strip()
         return None
+    
+
+    def get_role(self, obj):
+        request = self.context.get("request")
+        if request and request.user and hasattr(request.user, "role"):
+            return request.user.role
+        return obj.role
 
 
 

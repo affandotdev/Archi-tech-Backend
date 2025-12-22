@@ -61,7 +61,6 @@ class ProfileMeAPIView(APIView):
 
         serializer.save()
 
-        # 🔥 Publish Event
         publish_profile_updated(user_id, serializer.data)
 
         return Response(serializer.data, status=201)
@@ -86,7 +85,7 @@ class ProfileMeAPIView(APIView):
 
         serializer.save()
 
-        # 🔥 Publish Event
+       
         publish_profile_updated(user_id, serializer.data)
 
         return Response(serializer.data, status=200 if profile else 201)
@@ -110,7 +109,7 @@ class ProfileMeAPIView(APIView):
 
         serializer.save()
 
-        # 🔥 Publish Event
+       
         publish_profile_updated(user_id, serializer.data)
 
         return Response(serializer.data, status=200)

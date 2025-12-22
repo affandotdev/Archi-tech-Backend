@@ -226,6 +226,7 @@ INSTALLED_APPS = [
     "portfolio",
     "professional",
     'user_profile.apps.UserProfileConfig',
+    "user_service.apps.UserServiceConfig",
 ]
 
 MIDDLEWARE = [
