@@ -16,6 +16,7 @@ class SendConnectionRequest(APIView):
 
     def post(self, request):
         target_id = request.data.get("target_user_id")
+        print(f"DEBUG: SendRequest: Requester={request.user.id}, Target={target_id}")
 
         if not target_id:
             return Response(
@@ -56,27 +57,14 @@ class SendConnectionRequest(APIView):
 
         from user_profile.models import Profile
         target_profile = get_object_or_404(Profile, auth_user_id=target_id)
-
-        if target_profile.role not in ["architect", "engineer"]:
-            return Response(
-                {"detail": "target must be architect or engineer"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        # We need a User instance for the ForeignKey. 
-        # If using ServiceUser, we might need a local User stub or change model to use integer ID.
-        # Assuming ConnectionRequest models.ForeignKey(User) expects a real DB row.
-        # If User table is not synced, we have a problem.
-        # BUT, typically we sync User table via RabbitMQ too? 
-        # If not, ConnectionRequest should use auth_user_id (Integer) instead of ForeignKey.
         
-        # For now, let's assume User table exists and is synced or we get the user.
-        # We don't need User model lookup anymore. We trust the Profile check we did earlier.
+        # ... logic ...
         
         obj, created = ConnectionRequest.objects.get_or_create(
             requester_id=str(request.user.id),
             target_id=str(target_id)
         )
+        print(f"DEBUG: ConnectionRequest created? {created}. Obj ID: {obj.id}, Status: {obj.status}")
 
         if not created:
             return Response(
@@ -95,8 +83,11 @@ class PendingRequests(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        user_id = str(request.user.id)
+        print(f"DEBUG: PendingRequests for target={user_id}")
         # Only show requests for the authenticated user as target
-        qs = ConnectionRequest.objects.filter(target_id=str(request.user.id), status=ConnectionRequest.STATUS_PENDING)
+        qs = ConnectionRequest.objects.filter(target_id=user_id, status=ConnectionRequest.STATUS_PENDING)
+        print(f"DEBUG: Found {qs.count()} pending requests.")
         serializer = ConnectionRequestSerializer(qs, many=True)
         return Response(serializer.data)
 
@@ -107,6 +98,7 @@ class ApproveRequest(APIView):
     def post(self, request):
         req_id = request.data.get("request_id")
         action = request.data.get("action")
+        print(f"DEBUG: ApproveRequest: ID={req_id}, Action={action}")
 
         if not req_id or action not in ["approve", "reject"]:
             return Response(
@@ -132,6 +124,8 @@ class ApproveRequest(APIView):
             req.approve()
         else:
             req.reject()
+        
+        print(f"DEBUG: Request {req.id} new status: {req.status}")
 
         return Response(
             {"detail": "ok", "status": req.status},
@@ -155,3 +149,35 @@ class CheckAccess(APIView):
         ).exists()
 
         return Response({"allowed": allowed})
+
+
+class ConnectedUsers(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user_id = str(request.user.id)
+        print(f"DEBUG: ConnectedUsers for user={user_id}")
+        
+        # 1. As Target (People who requested me and I approved) -> Clients following me
+        received_ids = ConnectionRequest.objects.filter(
+            target_id=user_id, 
+            status=ConnectionRequest.STATUS_APPROVED
+        ).values_list('requester_id', flat=True)
+        
+        # 2. As Requester (People I requested and they approved) -> Professionals I follow
+        sent_ids = ConnectionRequest.objects.filter(
+            requester_id=user_id, 
+            status=ConnectionRequest.STATUS_APPROVED
+        ).values_list('target_id', flat=True)
+        
+        # Combine unique IDs
+        connected_ids = set(received_ids) | set(sent_ids)
+        print(f"DEBUG: Connected IDs: {connected_ids}")
+        
+        from user_profile.models import Profile
+        from user_profile.serializers import PublicProfileSerializer
+        
+        profiles = Profile.objects.filter(auth_user_id__in=connected_ids)
+        serializer = PublicProfileSerializer(profiles, many=True, context={'request': request})
+        
+        return Response(serializer.data)

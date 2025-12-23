@@ -70,6 +70,7 @@ class PublicProfileSerializer(serializers.ModelSerializer):
             "full_name",
             "bio",
             "location",
+            "role",
             "avatar_url",
         ]
 

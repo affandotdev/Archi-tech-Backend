@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Project(models.Model):
-    owner_id = models.IntegerField()  # auth user id
+    owner_id = models.CharField(max_length=100, db_index=True)  # auth user id (UUID)
     title = models.CharField(max_length=200)
     project_type = models.CharField(max_length=50)  # residential, commercial
     location = models.CharField(max_length=100)
