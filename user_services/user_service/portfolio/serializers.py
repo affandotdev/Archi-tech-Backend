@@ -12,8 +12,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
+        extra_kwargs = {'owner_id': {'read_only': True}}
         fields = [
             "id",
+            "owner_id",
             "title",
             "project_type",
             "location",

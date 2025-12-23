@@ -117,7 +117,7 @@ class ProjectDetailAPIView(APIView):
             return Response({"detail": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Check ownership
-        if project.owner_id != request.user.id and getattr(request.user, 'role', None) != 'admin':
+        if str(project.owner_id) != str(request.user.id) and getattr(request.user, 'role', None) != 'admin':
             return Response({"detail": "You do not have permission to edit this project."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = ProjectSerializer(project, data=request.data, partial=True, context={'request': request})
@@ -132,7 +132,7 @@ class ProjectDetailAPIView(APIView):
             return Response({"detail": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Check ownership
-        if project.owner_id != request.user.id and getattr(request.user, 'role', None) != 'admin':
+        if str(project.owner_id) != str(request.user.id) and getattr(request.user, 'role', None) != 'admin':
             return Response({"detail": "You do not have permission to delete this project."}, status=status.HTTP_403_FORBIDDEN)
 
         project.delete()
