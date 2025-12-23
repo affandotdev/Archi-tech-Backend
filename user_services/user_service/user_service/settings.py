@@ -329,6 +329,12 @@ REST_FRAMEWORK = {
 
 
 # ============================
+# Media Files
+# ============================
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# ============================
 # RabbitMQ Settings
 # ============================
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
