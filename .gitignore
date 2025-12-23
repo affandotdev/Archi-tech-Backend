@@ -1,7 +1,7 @@
 .env
 
 *.glb
-user_services/user_service/media/portfolio/models/
+user_services/user_service/media/
 
 
 
