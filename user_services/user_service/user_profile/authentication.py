@@ -8,10 +8,13 @@ logger = logging.getLogger(__name__)
 
 class ServiceUser:
     """A lightweight user identified ONLY by JWT user_id."""
-    def __init__(self, user_id):
+    def __init__(self, user_id, **kwargs):
         self.id = user_id
         self.pk = user_id
         self.is_authenticated = True
+        # Store other claims
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def __str__(self):
         return f"ServiceUser({self.id})"
@@ -33,7 +36,15 @@ class SharedJWTAuthentication(JWTAuthentication):
         if not user_id:
             raise AuthenticationFailed("User ID missing in token.")
 
-        return ServiceUser(str(user_id))
+        # Extract other useful claims
+        payload = validated_token.payload
+        user_data = {
+            "role": payload.get("role"),
+            "email": payload.get("email"),
+            "first_name": payload.get("first_name"),
+            "last_name": payload.get("last_name"),
+        }
+        return ServiceUser(str(user_id), **user_data)
 
     def authenticate(self, request):
         header = self.get_header(request)

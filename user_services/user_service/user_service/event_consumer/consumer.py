@@ -400,11 +400,22 @@ def start_consumer():
                 event_type = event.get("event")
                 user_id = event.get("user_id")
 
-                if event_type == "USER_ROLE_UPDATED":
-                    Profile.objects.filter(
-                        auth_user_id=user_id
-                    ).update(role=event["role"])
+                if event_type == "USER_CREATED":
+                    Profile.objects.update_or_create(
+                        auth_user_id=user_id,
+                        defaults={
+                            "first_name": event.get("first_name", ""),
+                            "last_name": event.get("last_name", ""),
+                            "role": event.get("role", "client"),
+                        },
+                    )
+                    print(f"✅ USER_CREATED synced for user {user_id}")
 
+                elif event_type == "USER_ROLE_UPDATED":
+                    Profile.objects.update_or_create(
+                        auth_user_id=user_id,
+                        defaults={"role": event["role"]},
+                    )
                     print(f"✅ Role updated for user {user_id}")
 
                 ch.basic_ack(delivery_tag=method.delivery_tag)

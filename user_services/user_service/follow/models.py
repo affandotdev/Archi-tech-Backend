@@ -16,17 +16,19 @@ class ConnectionRequest(models.Model):
         (STATUS_REJECTED, "Rejected"),
     )
 
-    requester = models.ForeignKey(User, related_name="sent_connection_requests", on_delete=models.CASCADE)
-    target = models.ForeignKey(User, related_name="received_connection_requests", on_delete=models.CASCADE)
+    # Decoupling from local User table to support Microservices/UUIDs
+    requester_id = models.CharField(max_length=100, db_index=True)
+    target_id = models.CharField(max_length=100, db_index=True)
+    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
     acted_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ("requester", "target")
+        unique_together = ("requester_id", "target_id")
         indexes = [
-            models.Index(fields=["target", "status"]),
-            models.Index(fields=["requester", "status"]),
+            models.Index(fields=["target_id", "status"]),
+            # models.Index(fields=["requester_id", "status"]), # Already covered by unique_together prefix or db_index
         ]
 
     def approve(self):
@@ -40,4 +42,4 @@ class ConnectionRequest(models.Model):
         self.save()
 
     def __str__(self):
-        return f"{self.requester} -> {self.target} ({self.status})"
+        return f"{self.requester_id} -> {self.target_id} ({self.status})"

@@ -9,8 +9,8 @@ def avatar_upload_path(instance, filename):
 class Profile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    # Only store the user ID from auth-service
-    auth_user_id = models.IntegerField(unique=True)
+    # Only store the user ID from auth-service (Changed to CharField to support UUIDs)
+    auth_user_id = models.CharField(max_length=100, unique=True)
 
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
