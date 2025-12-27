@@ -69,11 +69,19 @@ from .models import Message
 
 @sync_to_async
 def create_message(conversation_id, sender_id, content):
-    return Message.objects.create(
+    from django.utils import timezone
+    from .models import Conversation
+    
+    msg = Message.objects.create(
         conversation_id=conversation_id,
         sender_id=sender_id,
         content=content
     )
+    
+    # Touch the conversation to update 'updated_at'
+    Conversation.objects.filter(id=conversation_id).update(updated_at=timezone.now())
+    
+    return msg
 
 class ChatConsumer(AsyncWebsocketConsumer):
 
