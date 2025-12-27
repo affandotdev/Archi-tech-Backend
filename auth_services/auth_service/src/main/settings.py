@@ -220,7 +220,7 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
 }
 
-print(">>> JWT_SECRET_KEY =", JWT_SECRET_KEY)
+
 
 
 
@@ -232,5 +232,4 @@ RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", 5672))
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", "admin")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "admin")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
-print(f"DEBUG_SETTINGS_LOAD: JWT_SECRET_KEY={os.getenv('JWT_SECRET_KEY')}")
-print(f"DEBUG_SETTINGS_LOAD: SIGNING_KEY={SIMPLE_JWT.get('SIGNING_KEY')}")
+
