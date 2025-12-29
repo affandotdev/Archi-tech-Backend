@@ -19,14 +19,14 @@ def calculate_cost(
         "rural": 0.9,
     }
 
-    built_up_area = plot_length_ft * plot_width_ft * floors * 0.8  # 80% efficiency
+    built_up_area = plot_length_ft * plot_width_ft * floors * 0.8  
 
     cost_per_sqft = int(
         base_cost_per_sqft[quality]
         * location_multiplier.get(location.lower(), 1.0)
     )
 
-    total_cost = (built_up_area * cost_per_sqft) / 100000  # lakhs
+    total_cost = (built_up_area * cost_per_sqft) / 100000  
 
     assumptions = [
         "Standard structural system",
