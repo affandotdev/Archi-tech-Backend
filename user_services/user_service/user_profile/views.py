@@ -36,10 +36,22 @@ class ProfileMeAPIView(APIView):
 
         profile, created = Profile.objects.get_or_create(auth_user_id=user_id)
 
+        # Calculate Connection Count
+        from django.db.models import Q
+        from follow.models import ConnectionRequest
+        
+        connection_count = ConnectionRequest.objects.filter(
+            (Q(requester_id=str(user_id)) | Q(target_id=str(user_id))),
+            status=ConnectionRequest.STATUS_APPROVED
+        ).count()
+
         serializer = ProfileSerializer(profile)
+        data = serializer.data
+        data['connection_count'] = connection_count
+
         return Response({
             "message": "Profile fetched successfully",
-            "data": serializer.data
+            "data": data
         })
 
     def post(self, request):

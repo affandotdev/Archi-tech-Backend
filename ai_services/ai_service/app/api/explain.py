@@ -18,3 +18,13 @@ def explain_estimate(payload: EstimateRequest):
         "ai_assisted": True
     }
 
+from app.schemas.estimate import ChatRequest
+
+@router.post("/chat")
+def chat_with_ai(payload: ChatRequest):
+    response = generate_response(payload.prompt)
+    return {
+        "message": response,
+        "ai_assisted": True
+    }
+

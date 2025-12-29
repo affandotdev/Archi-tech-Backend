@@ -29,6 +29,10 @@ class SendConnectionRequest(APIView):
         # 1. Get Requester Profile to check role (since token might not have it)
         try:
             requester_profile = Profile.objects.get(auth_user_id=request.user.id)
+            if not requester_profile.role:
+                print(f"DEBUG: Profile exists but role is empty. Defaulting to 'client'.")
+                requester_profile.role = "client"
+                requester_profile.save()
             requester_role = requester_profile.role.lower()
         except Profile.DoesNotExist:
             # Self-healing: Create missing profile if not found
@@ -179,5 +183,33 @@ class ConnectedUsers(APIView):
         
         profiles = Profile.objects.filter(auth_user_id__in=connected_ids)
         serializer = PublicProfileSerializer(profiles, many=True, context={'request': request})
-        
         return Response(serializer.data)
+        
+
+class RemoveConnection(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        target_id = request.data.get("target_user_id")
+        if not target_id:
+            return Response({"detail": "target_user_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_id = str(request.user.id)
+        target_id = str(target_id)
+        
+        print(f"DEBUG: RemoveConnection: User={user_id} removing Target={target_id}")
+
+        # Find the connection (can be requester or target)
+        connection = ConnectionRequest.objects.filter(
+            (Q(requester_id=user_id) & Q(target_id=target_id)) |
+            (Q(requester_id=target_id) & Q(target_id=user_id)),
+            status=ConnectionRequest.STATUS_APPROVED
+        ).first()
+
+        if not connection:
+            return Response({"detail": "Connection not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        connection.delete()
+        print(f"DEBUG: Connection removed between {user_id} and {target_id}")
+
+        return Response({"detail": "Connection removed"}, status=status.HTTP_200_OK)
