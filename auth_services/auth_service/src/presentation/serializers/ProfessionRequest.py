@@ -7,4 +7,4 @@ class ProfessionRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfessionalRequest
         fields = "__all__"
-        read_only_fields = ["status", "admin_comment", "requested_at", "updated_at", "user_email"]
+        read_only_fields = ["user", "status", "admin_comment", "created_at", "updated_at", "user_email", "reviewed_by"]

@@ -81,8 +81,8 @@ auth_urlpatterns = [
     # Profession Request (NEW)
     path("profession-request/", SubmitProfessionRequestView.as_view()),
     path("admin/profession-requests/", ListProfessionRequestsView.as_view()),
-    path("admin/profession-request/<int:pk>/approve/", ApproveProfessionView.as_view()),
-    path("admin/profession-request/<int:pk>/reject/", RejectProfessionView.as_view()),
+    path("admin/profession-request/<uuid:pk>/approve/", ApproveProfessionView.as_view()),
+    path("admin/profession-request/<uuid:pk>/reject/", RejectProfessionView.as_view()),
 ]
 
 
