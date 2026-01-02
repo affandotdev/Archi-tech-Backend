@@ -4,6 +4,9 @@ from .views import (
     ConversationListView,
     MessageCreateView,
     MessageListView,
+    RegisterFCMTokenView,
+    NotificationListView,
+    NotificationMarkReadView
 )
 
 urlpatterns = [
@@ -11,4 +14,7 @@ urlpatterns = [
     path("conversations/list/", ConversationListView.as_view()),
     path("messages/", MessageCreateView.as_view()),
     path("messages/<uuid:conversation_id>/", MessageListView.as_view()),
+    path("fcm/register/", RegisterFCMTokenView.as_view()),
+    path("notifications/list/", NotificationListView.as_view()),
+    path("notifications/<int:notification_id>/read/", NotificationMarkReadView.as_view()),
 ]

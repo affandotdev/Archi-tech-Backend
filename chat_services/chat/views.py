@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Conversation, Message
+from .models import Conversation, Message, FCMToken
 from .serializers import ConversationSerializer, MessageSerializer
 
 from rest_framework.permissions import IsAuthenticated
@@ -97,3 +97,46 @@ class MessageCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegisterFCMTokenView(APIView):
+    def post(self, request):
+        user_id = request.data.get("user_id")
+        token = request.data.get("token")
+        
+        if not user_id or not token:
+            return Response(
+                {"error": "user_id and token are required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        FCMToken.objects.update_or_create(
+            user_id=user_id,
+            token=token,
+            defaults={"device_type": "web"}
+        )
+        
+        return Response({"status": "Token registered successfully"})
+
+from .serializers import NotificationSerializer
+from .models import Notification
+
+class NotificationListView(APIView):
+    def get(self, request):
+        user_id = request.query_params.get("user_id") or getattr(request, 'user_id', None)
+        if not user_id:
+            return Response({"error": "user_id required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        notifs = Notification.objects.filter(user_id=user_id, is_read=False)
+        serializer = NotificationSerializer(notifs, many=True)
+        return Response(serializer.data)
+
+class NotificationMarkReadView(APIView):
+    def post(self, request, notification_id):
+        try:
+            notif = Notification.objects.get(id=notification_id)
+            notif.is_read = True
+            notif.save()
+            return Response({"status": "marked read"})
+        except Notification.DoesNotExist:
+             return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)

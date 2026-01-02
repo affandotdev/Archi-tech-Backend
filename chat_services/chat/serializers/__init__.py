@@ -1,6 +1,10 @@
 from rest_framework import serializers
-from .models import Conversation, Message
+from ..models import Conversation, Message
 
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = "__all__"
 
 class ConversationSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
@@ -10,14 +14,9 @@ class ConversationSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_last_message(self, obj):
-       
         last_msg = Message.objects.filter(conversation_id=obj.id).order_by('-created_at').first()
         if last_msg:
             return MessageSerializer(last_msg).data
         return None
 
-
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Message
-        fields = "__all__"
+from .notification import NotificationSerializer

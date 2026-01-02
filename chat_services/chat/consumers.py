@@ -1,64 +1,3 @@
-# import json
-# from channels.generic.websocket import AsyncWebsocketConsumer
-# from .models import Message, Conversation
-# from asgiref.sync import sync_to_async
-
-
-
-
-# @sync_to_async
-# def create_message(conversation_id, sender_id, content):
-#     return Message.objects.create(
-#         conversation_id=conversation_id,
-#         sender_id=sender_id,
-#         content=content
-#     )
-
-
-
-# class ChatConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         self.conversation_id = str(self.scope["url_route"]["kwargs"]["conversation_id"])
-#         self.room_group_name = f"chat_{self.conversation_id}"
-
-#         await self.channel_layer.group_add(
-#             self.room_group_name,
-#             self.channel_name
-#         )
-
-#         await self.accept()
-
-#     async def disconnect(self, close_code):
-#         await self.channel_layer.group_discard(
-#             self.room_group_name,
-#             self.channel_name
-#         )
-
-#     async def receive(self, text_data):
-#         data = json.loads(text_data)
-#         message = data.get("message")
-#         sender_id = data.get("sender_id")
-
-#         # Save message to DB (sync → async bridge)
-#         msg = Message.objects.create(
-#             conversation_id=self.conversation_id,
-#             sender_id=sender_id,
-#             content=message
-#         )
-
-#         await self.channel_layer.group_send(
-#             self.room_group_name,
-#             {
-#                 "type": "chat_message",
-#                 "message": msg.content,
-#                 "sender_id": sender_id,
-#             }
-#         )
-
-#     async def chat_message(self, event):
-#         await self.send(text_data=json.dumps(event))
-
-
 
 
 
@@ -66,6 +5,12 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from .models import Message
+from .redis_presence import user_online
+from .redis_presence import user_offline
+
+from .redis_presence import is_user_online
+from .models import Notification
+from .fcm_service import send_push_notification
 
 @sync_to_async
 def create_message(conversation_id, sender_id, content):
@@ -79,6 +24,37 @@ def create_message(conversation_id, sender_id, content):
     )
 
     Conversation.objects.filter(id=conversation_id).update(updated_at=timezone.now())
+
+    # Fetch conversation to get participants
+    try:
+        conversation = Conversation.objects.get(id=conversation_id)
+        # Notify other participants
+        if isinstance(conversation.participants, list):
+            for participant_id in conversation.participants:
+                # Ensure we don't notify the sender
+                if str(participant_id) != str(sender_id):
+                    # 1. Create DB Notification for Navbar
+                    try:
+                        Notification.objects.create(
+                            user_id=str(participant_id),
+                            type="NEW_MESSAGE",
+                            reference_id=conversation_id,
+                            is_read=False
+                        )
+                    except Exception as ex:
+                        print(f"Failed to create notification record: {ex}")
+
+                    # 2. Send FCM Notification for Popup/Push
+                    try:
+                        send_push_notification(
+                            user_id=str(participant_id),
+                            title="New Message",
+                            body=f"New message from {sender_id}: {content[:30]}..."
+                        )
+                    except Exception as e:
+                        print(f"Failed to send push notification to {participant_id}: {e}")
+    except Exception as e:
+        print(f"Error notifying participants: {e}")
     
     return msg
 
@@ -187,3 +163,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))
+
+
+
+
+
+
+
+
+def handle_notifications(sender_id, receiver_id, conversation_id):
+    if is_user_online(receiver_id):
+        return
+
+    Notification.objects.create(
+        user_id=receiver_id,
+        type="NEW_MESSAGE",
+        reference_id=conversation_id,
+    )
+
+    send_push_notification(
+        user_id=receiver_id,
+        title="New message",
+        body="You have a new message",
+    )

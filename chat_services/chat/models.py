@@ -28,3 +28,26 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message {self.id} in {self.conversation.id}"
+
+
+class FCMToken(models.Model):
+    user_id = models.CharField(max_length=255)
+    token = models.CharField(max_length=512)
+    device_type = models.CharField(max_length=50, default='web')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user_id', 'token')
+
+class Notification(models.Model):
+    user_id = models.CharField(max_length=255)
+    type = models.CharField(max_length=50) # NEW_MESSAGE, etc.
+    reference_id = models.CharField(max_length=255, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"Token for {self.user_id}"
