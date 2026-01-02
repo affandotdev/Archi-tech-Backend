@@ -7,7 +7,7 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class ConversationSerializer(serializers.ModelSerializer):
-    last_message = serializers.SerializerMethodField()
+    unread_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Conversation
@@ -18,5 +18,23 @@ class ConversationSerializer(serializers.ModelSerializer):
         if last_msg:
             return MessageSerializer(last_msg).data
         return None
+
+    def get_unread_count(self, obj):
+        user_id = self.context.get('user_id')
+        if not user_id:
+            # Fallback if context not passed, try request query params
+            request = self.context.get('request')
+            if request:
+                user_id = request.query_params.get('user_id')
+        
+        if user_id:
+            from ..models import Notification
+            return Notification.objects.filter(
+                user_id=user_id,
+                type="NEW_MESSAGE",
+                reference_id=str(obj.id),
+                is_read=False
+            ).count()
+        return 0
 
 from .notification import NotificationSerializer

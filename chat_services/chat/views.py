@@ -59,7 +59,7 @@ class ConversationListView(APIView):
                         
             print(f"ConversationListView: Found {len(filtered_conversations)} convs (Python Filter)")
 
-            serializer = ConversationSerializer(filtered_conversations, many=True)
+            serializer = ConversationSerializer(filtered_conversations, many=True, context={'user_id': user_id, 'request': request})
             return Response(serializer.data)
         except Exception as e:
             import traceback
