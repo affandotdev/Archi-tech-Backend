@@ -3,6 +3,9 @@
 *.glb
 user_services/user_service/media/
 
-chat_services/firebase_credentials.json
+# Firebase / GCP secrets
+firebase_credentials.json
+*.json
+
 
 
