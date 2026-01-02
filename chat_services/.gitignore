@@ -1,0 +1,6 @@
+
+# Firebase Credentials
+firebase_credentials.json
+
+# Environment Variables
+.env

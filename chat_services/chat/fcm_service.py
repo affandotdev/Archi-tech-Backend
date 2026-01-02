@@ -8,14 +8,25 @@ import os
 # We use a try-except block to avoid multiple initialization errors during reloads
 try:
     if not firebase_admin._apps:
-        # Check if credentials file exists
-        cred_path = os.path.join(settings.BASE_DIR, 'firebase_credentials.json')
-        if os.path.exists(cred_path):
-            cred = credentials.Certificate(cred_path)
+        # 1. Try Environment Variable (JSON content)
+        firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS_JSON')
+        
+        if firebase_creds_json:
+            import json
+            cred_dict = json.loads(firebase_creds_json)
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            print("[FCM] Firebase Admin Initialized successfully.")
+            print("[FCM] Firebase Admin Initialized from Environment Variable.")
+            
         else:
-            print(f"[FCM] WARNING: Credentials file not found at {cred_path}. Notifications will be skipped.")
+            # 2. Fallback to File
+            cred_path = os.path.join(settings.BASE_DIR, 'firebase_credentials.json')
+            if os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+                print("[FCM] Firebase Admin Initialized from File.")
+            else:
+                print(f"[FCM] WARNING: Credentials not found (Env 'FIREBASE_CREDENTIALS_JSON' or File '{cred_path}').")
 except Exception as e:
     print(f"[FCM] Initialization Error: {e}")
 

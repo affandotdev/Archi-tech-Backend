@@ -9,3 +9,9 @@ firebase_credentials.json
 
 
 
+chat_services/firebase_credentials.json
+firebase_credentials.json
+.env
+__pycache__/
+*.pyc
+db.sqlite3
