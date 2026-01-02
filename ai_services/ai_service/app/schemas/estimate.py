@@ -8,7 +8,7 @@ class EstimateRequest(BaseModel):
     floors: int
 
     location: Literal["city", "town", "village"]
-    building_type: Literal["house", "apartment"]
+    building_type: Literal["house", "apartment", "villa"]
     quality: Literal["basic", "standard", "premium"]
 
     budget_lakhs: float

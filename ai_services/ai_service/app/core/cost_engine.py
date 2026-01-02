@@ -14,9 +14,9 @@ def calculate_cost(
     }
 
     location_multiplier = {
-        "metro": 1.15,
-        "city": 1.0,
-        "rural": 0.9,
+        "city": 1.2,    # Metro/City
+        "town": 1.0,    # Tier-2
+        "village": 0.8, # Rural
     }
 
     built_up_area = plot_length_ft * plot_width_ft * floors * 0.8  
