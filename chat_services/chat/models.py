@@ -27,7 +27,7 @@ class Message(models.Model):
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"Message {self.id} in {self.conversation.id}"
+        return f"Message {self.id} in {self.conversation_id}"
 
 
 class FCMToken(models.Model):

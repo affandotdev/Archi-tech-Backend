@@ -16,5 +16,6 @@ urlpatterns = [
     path("messages/<uuid:conversation_id>/", MessageListView.as_view()),
     path("fcm/register/", RegisterFCMTokenView.as_view()),
     path("notifications/list/", NotificationListView.as_view()),
+    path("notifications/read/", NotificationMarkReadView.as_view()),
     path("notifications/<int:notification_id>/read/", NotificationMarkReadView.as_view()),
 ]

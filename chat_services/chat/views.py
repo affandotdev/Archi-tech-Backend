@@ -132,11 +132,27 @@ class NotificationListView(APIView):
         return Response(serializer.data)
 
 class NotificationMarkReadView(APIView):
-    def post(self, request, notification_id):
-        try:
-            notif = Notification.objects.get(id=notification_id)
-            notif.is_read = True
-            notif.save()
-            return Response({"status": "marked read"})
-        except Notification.DoesNotExist:
-             return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, notification_id=None):
+        # 1. Bulk Mark by Conversation ID
+        conversation_id = request.data.get("conversation_id")
+        user_id = request.data.get("user_id")
+
+        if conversation_id and user_id:
+            updated_count = Notification.objects.filter(
+                user_id=user_id,
+                reference_id=str(conversation_id),
+                is_read=False
+            ).update(is_read=True)
+            return Response({"status": "marked read", "count": updated_count})
+
+        # 2. Single Notification Mark (Legacy / Specific)
+        if notification_id:
+            try:
+                notif = Notification.objects.get(id=notification_id)
+                notif.is_read = True
+                notif.save()
+                return Response({"status": "marked read"})
+            except Notification.DoesNotExist:
+                 return Response({"error": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({"error": "Invalid request parameters"}, status=status.HTTP_400_BAD_REQUEST)
