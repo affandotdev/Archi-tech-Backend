@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -139,3 +139,15 @@ class ProjectDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
+class ProjectStatsAPIView(APIView):
+    """
+    Internal API to get project statistics.
+    Accessible by other microservices (e.g. auth_service).
+    """
+    permission_classes = [AllowAny] 
+
+    def get(self, request):
+        total_projects = Project.objects.count()
+        return Response({"total_projects": total_projects})

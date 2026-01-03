@@ -593,6 +593,59 @@ services:
     networks:
       - micro_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - micro_net
+
+  auth_celery_worker:
+    build: ./auth_services
+    container_name: auth_celery_worker
+    working_dir: /app/auth_service
+    command: celery -A src.infrastructure.celery worker -l info
+    env_file:
+      - ./auth_services/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=src.main.settings
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - auth_db
+      - rabbitmq
+      - redis
+    networks:
+      - micro_net
+
+  auth_celery_beat:
+    build: ./auth_services
+    container_name: auth_celery_beat
+    working_dir: /app/auth_service
+    command: celery -A src.infrastructure.celery beat -l info
+    env_file:
+      - ./auth_services/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=src.main.settings
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - auth_db
+      - rabbitmq
+      - redis
+    networks:
+      - micro_net
+
   # user_consumer:
   # build: .
   # command: python user_service/event_consumer/consumer.py

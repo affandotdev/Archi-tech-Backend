@@ -83,6 +83,10 @@ auth_urlpatterns = [
     path("admin/profession-requests/", ListProfessionRequestsView.as_view()),
     path("admin/profession-request/<uuid:pk>/approve/", ApproveProfessionView.as_view()),
     path("admin/profession-request/<uuid:pk>/reject/", RejectProfessionView.as_view()),
+
+    # Reports
+    path('admin/', include('reports.urls')),
+
 ]
 
 

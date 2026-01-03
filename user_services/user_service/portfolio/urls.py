@@ -4,6 +4,7 @@ from .views import (
     ProjectImageUploadAPIView,
     PublicProjectListAPIView,
     ProjectDetailAPIView,
+    ProjectStatsAPIView,
 )
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path("projects/<int:project_id>/images/", ProjectImageUploadAPIView.as_view()),
     path("projects/<int:project_id>/", ProjectDetailAPIView.as_view()),
     path("users/<str:user_id>/projects/", PublicProjectListAPIView.as_view()),
+    path("internal/stats/projects/", ProjectStatsAPIView.as_view()),
 ]

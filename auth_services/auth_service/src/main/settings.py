@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "social_django",
 
     "users",
+    "reports",
 ]
 
 # Middleware
@@ -237,3 +238,21 @@ RABBITMQ_USER = os.getenv("RABBITMQ_USER", "admin")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "admin")
 RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
 
+
+# ============================
+# Celery Settings
+# ============================
+CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}/0"
+CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}/0"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = "UTC"
+
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'generate-daily-admin-report': {
+        'task': 'src.application.tasks.admin_reports.generate_daily_admin_report',
+        'schedule': crontab(hour=9, minute=0),
+    },
+}
