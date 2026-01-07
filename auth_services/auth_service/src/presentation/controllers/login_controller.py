@@ -6,7 +6,6 @@
 # from django.contrib.auth import authenticate
 # from rest_framework_simplejwt.tokens import RefreshToken
 # from users.models import User
-    
 
 
 # class LoginView(APIView):
@@ -52,15 +51,14 @@
 #         }, status=200)
 
 
-
 # src/presentation/controllers/login_controller.py
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from django.contrib.auth import authenticate
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
+from users.models import User, UserProfile
 
 
 class LoginView(APIView):
@@ -71,7 +69,7 @@ class LoginView(APIView):
         if not email or not password:
             return Response(
                 {"detail": "Email and password are required"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # 1. Check if user exists first
@@ -80,15 +78,14 @@ class LoginView(APIView):
         except User.DoesNotExist:
             # Avoid explicit "user not found" for security if desired, but for debugging/UX:
             return Response(
-                {"detail": "Invalid credentials"},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
         # 2. Check if user is active (verified)
         if not user_obj.is_active:
-             return Response(
+            return Response(
                 {"detail": "Account is not verified. Please verify your email."},
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         # 3. Authenticate (check password)
@@ -97,11 +94,25 @@ class LoginView(APIView):
 
         if not user:
             return Response(
-                {"detail": "Invalid credentials"},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
         refresh = RefreshToken.for_user(user)
+
+        try:
+            profile = UserProfile.objects.get(user=user)
+            full_name = profile.full_name
+            # Ensure we get a valid URL if image exists
+            if profile.profile_image:
+                try:
+                    avatar_url = request.build_absolute_uri(profile.profile_image.url)
+                except:
+                    avatar_url = profile.profile_image.url
+            else:
+                avatar_url = None
+        except UserProfile.DoesNotExist:
+            avatar_url = None
+            full_name = ""
 
         response_data = {
             "mfa_required": user.has_mfa,
@@ -111,6 +122,10 @@ class LoginView(APIView):
                 "id": user.id,
                 "email": user.email,
                 "role": user.role,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "full_name": full_name,
+                "avatar_url": avatar_url,
             },
             "role": user.role,
         }

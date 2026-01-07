@@ -1,11 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework import status
 from django.shortcuts import get_object_or_404
-
-from users.models import ProfessionalRequest  
-from src.presentation.serializers.ProfessionRequest import ProfessionRequestSerializer
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from src.presentation.serializers.ProfessionRequest import \
+    ProfessionRequestSerializer
+from users.models import ProfessionalRequest
 
 
 class SubmitProfessionRequestView(APIView):
@@ -13,14 +13,15 @@ class SubmitProfessionRequestView(APIView):
 
     def post(self, request):
         try:
-            from django.conf import settings
             import traceback
-            
+
+            from django.conf import settings
+
             print(f"DEBUG_JWT_KEY: {settings.SIMPLE_JWT.get('SIGNING_KEY')}")
             print(f"DEBUG_AUTH_HEADER: {request.headers.get('Authorization')}")
             print(f"DEBUG_USER: {request.user}")
             print(f"DEBUG_USER_AUTHENTICATED: {request.user.is_authenticated}")
-            
+
             user = request.user
 
             if ProfessionalRequest.objects.filter(
@@ -28,12 +29,11 @@ class SubmitProfessionRequestView(APIView):
             ).exists():
                 return Response(
                     {"message": "A profession request is already pending or approved"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             serializer = ProfessionRequestSerializer(
-                data=request.data,
-                context={"request": request}
+                data=request.data, context={"request": request}
             )
 
             if serializer.is_valid():
@@ -52,14 +52,14 @@ class SubmitProfessionRequestView(APIView):
             )
         except Exception as e:
             import traceback
+
             error_trace = traceback.format_exc()
             print(f"❌ ERROR in SubmitProfessionRequestView: {str(e)}")
             print(f"❌ TRACEBACK:\n{error_trace}")
             return Response(
                 {"error": str(e), "trace": error_trace},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
 
 
 class ApproveProfessionView(APIView):
@@ -71,7 +71,7 @@ class ApproveProfessionView(APIView):
         if req.status == "approved":
             return Response(
                 {"message": "Request already approved"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         req.status = "approved"
@@ -85,12 +85,12 @@ class ApproveProfessionView(APIView):
         user.save()
 
         # Publish RabbitMQ event to sync with user_service
-        from src.infrastructure.message_broker import publish_user_role_updated_event
+        from src.infrastructure.message_broker import \
+            publish_user_role_updated_event
+
         publish_user_role_updated_event(user.id, user.role, is_verified=True)
 
         return Response({"message": "Request approved"}, status=status.HTTP_200_OK)
-
-
 
 
 class RejectProfessionView(APIView):
@@ -102,13 +102,13 @@ class RejectProfessionView(APIView):
         if req.status == "rejected":
             return Response(
                 {"message": "Request already rejected"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         if req.status == "approved":
             return Response(
                 {"message": "Approved request cannot be rejected"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         req.status = "rejected"
@@ -116,18 +116,7 @@ class RejectProfessionView(APIView):
         req.reviewed_by = request.user
         req.save()
 
-        return Response(
-            {"message": "Request rejected"},
-            status=status.HTTP_200_OK
-        )
-
-
-
-
-
-
-
-
+        return Response({"message": "Request rejected"}, status=status.HTTP_200_OK)
 
 
 class ListProfessionRequestsView(APIView):
@@ -135,5 +124,7 @@ class ListProfessionRequestsView(APIView):
 
     def get(self, request):
         qs = ProfessionalRequest.objects.all().order_by("-created_at")
-        serializer = ProfessionRequestSerializer(qs, many=True, context={"request": request})
+        serializer = ProfessionRequestSerializer(
+            qs, many=True, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)

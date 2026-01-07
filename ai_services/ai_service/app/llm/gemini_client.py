@@ -14,17 +14,16 @@
 # model = genai.GenerativeModel("models/gemini-pro")
 
 
-
 # def generate_response(prompt: str) -> str:
 #     response = model.generate_content(prompt)
 #     return response.text
 
 
-
 import os
+
 from dotenv import load_dotenv
-from google import genai
 from fastapi import HTTPException
+from google import genai
 
 load_dotenv()
 
@@ -37,7 +36,6 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 models = client.models.list()
 
 
-
 def generate_response(prompt: str) -> str:
     try:
         response = client.models.generate_content(
@@ -47,9 +45,5 @@ def generate_response(prompt: str) -> str:
         return response.text
     except Exception as e:
         raise HTTPException(
-            status_code=502,
-            detail=f"Gemini upstream failure: {str(e)}"
+            status_code=502, detail=f"Gemini upstream failure: {str(e)}"
         )
-
-
-

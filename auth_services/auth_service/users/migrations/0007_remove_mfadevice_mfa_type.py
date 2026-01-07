@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0006_mfadevice_mfa_type'),
+        ("users", "0006_mfadevice_mfa_type"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='mfadevice',
-            name='mfa_type',
+            model_name="mfadevice",
+            name="mfa_type",
         ),
     ]

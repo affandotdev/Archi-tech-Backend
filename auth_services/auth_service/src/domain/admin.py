@@ -15,7 +15,7 @@
 #     class Meta(UserCreationForm.Meta):
 #         model = User
 #         fields = ("email",)
-        
+
 #     def __init__(self, *args, **kwargs):
 #         super().__init__(*args, **kwargs)
 #         if 'username' in self.fields:
@@ -27,7 +27,7 @@
 #     model = User
 #     form = CustomUserChangeForm
 #     add_form = CustomUserCreationForm
-    
+
 #     list_display = (
 #         "email",
 #         "first_name",
@@ -40,13 +40,13 @@
 #         "is_active",
 #         "date_joined",
 #     )
-    
+
 #     list_filter = ("role", "is_verified", "has_mfa", "is_staff", "is_active", "date_joined")
-    
+
 #     ordering = ("email",)
-    
+
 #     search_fields = ("email", "first_name", "last_name", "phone")
-    
+
 #     fieldsets = (
 #         (None, {"fields": ("email", "password")}),
 #         ("Personal info", {"fields": ("first_name", "last_name", "phone")}),
@@ -71,7 +71,7 @@
 #             ),
 #         }),
 #     )
-    
+
 #     add_fieldsets = (
 #         (
 #             None,
@@ -89,7 +89,7 @@
 #             ),
 #         }),
 #     )
-    
+
 #     readonly_fields = ("date_joined", "last_login")
 
 
@@ -99,7 +99,7 @@
 #     search_fields = ("user__email", "full_name", "location")
 #     list_filter = ("created_at", "updated_at")
 #     readonly_fields = ("created_at", "updated_at")
-    
+
 #     fieldsets = (
 #         (None, {"fields": ("user",)}),
 #         ("Profile Information", {
@@ -120,7 +120,7 @@
 #     search_fields = ("email", "purpose")
 #     list_filter = ("purpose", "created_at", "expires_at")
 #     readonly_fields = ("created_at", "expires_at", "attempts")
-    
+
 #     def is_expired_display(self, obj):
 #         return "Yes" if obj.is_expired() else "No"
 #     is_expired_display.short_description = "Expired"
@@ -133,7 +133,7 @@
 #     search_fields = ("user__email",)
 #     list_filter = ("confirmed", "created_at")
 #     readonly_fields = ("created_at",)
-    
+
 #     fieldsets = (
 #         (None, {"fields": ("user",)}),
 #         ("MFA Settings", {

@@ -20,7 +20,7 @@
 #         if not request.user or not request.user.is_authenticated:
 #             print("DEBUG [AuthService]: User not authenticated")
 #             return False
-        
+
 #         is_admin = getattr(request.user, 'role', None) == 'admin'
 #         print(f"DEBUG [AuthService]: User Role: {getattr(request.user, 'role', 'None')} -> Is Admin? {is_admin}")
 #         return is_admin
@@ -65,14 +65,14 @@
 #             user = User.objects.get(id=user_id)
 #         except User.DoesNotExist:
 #             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
 #         serializer = AdminUserSerializer(user)
 #         return Response(serializer.data)
 
 #     def delete(self, request, user_id):
 #         try:
 #             user = User.objects.get(id=user_id)
-#             user.delete() 
+#             user.delete()
 #             return Response(status=status.HTTP_204_NO_CONTENT)
 #         except User.DoesNotExist:
 #             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -93,15 +93,13 @@
 #                 return Response({"error": "Status required"}, status=400)
 #             user.is_active = is_active
 #             user.save()
-            
+
 #             # 🔥 Publish Event
 #             publish_user_updated_event(user.id, {"is_active": is_active})
 
 #             return Response({"message": "Status updated"})
 #         except User.DoesNotExist:
 #             return Response({"error": "User not found"}, status=404)
-
-
 
 
 # class AdminUserRoleController(APIView):
@@ -122,7 +120,6 @@
 #             return Response({"message": "Role updated"})
 #         except User.DoesNotExist:
 #             return Response({"error": "User not found"}, status=404)
-
 
 
 # class AdminUserVerifyController(APIView):
@@ -146,8 +143,8 @@
 #         # Using active users as a proxy for "Active Sessions" for now
 #         active_sessions = User.objects.filter(is_active=True).count()
 #         # Placeholder for incidents
-#         open_incidents = 0 
-        
+#         open_incidents = 0
+
 #         return Response({
 #             "totalUsers": total_users,
 #             "total_users": total_users, # Fallback
@@ -171,18 +168,15 @@
 #         })
 
 
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, permissions
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
-from src.presentation.serializers.admin_serializer import AdminUserSerializer
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from src.infrastructure.message_broker import publish_user_role_updated_event
+from src.presentation.serializers.admin_serializer import AdminUserSerializer
 
 User = get_user_model()
 
@@ -191,6 +185,7 @@ class IsAdminUser(permissions.BasePermission):
     """
     Allows access only to admin users.
     """
+
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
@@ -237,7 +232,9 @@ class AdminUserDetailController(APIView):
             serializer = AdminUserSerializer(user)
             return Response(serializer.data)
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
     def delete(self, request, user_id):
         try:
@@ -245,7 +242,9 @@ class AdminUserDetailController(APIView):
             user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class AdminUserStatusController(APIView):
@@ -254,9 +253,7 @@ class AdminUserStatusController(APIView):
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            properties={
-                "status": openapi.Schema(type=openapi.TYPE_BOOLEAN)
-            },
+            properties={"status": openapi.Schema(type=openapi.TYPE_BOOLEAN)},
         )
     )
     def patch(self, request, user_id):
@@ -283,9 +280,7 @@ class AdminUserRoleController(APIView):
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            properties={
-                "role": openapi.Schema(type=openapi.TYPE_STRING)
-            },
+            properties={"role": openapi.Schema(type=openapi.TYPE_STRING)},
         )
     )
     def post(self, request, user_id):
@@ -301,9 +296,7 @@ class AdminUserRoleController(APIView):
         publish_user_role_updated_event(user.id, role, is_verified=True)
 
         return Response({"message": "Role updated"})
-    
 
-    
 
 class AdminUserVerifyController(APIView):
     permission_classes = [IsAdminUser]

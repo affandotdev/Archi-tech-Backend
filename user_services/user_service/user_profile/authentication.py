@@ -1,4 +1,5 @@
 import logging
+
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class ServiceUser:
     """A lightweight user identified ONLY by JWT user_id."""
+
     def __init__(self, user_id, **kwargs):
         self.id = user_id
         self.pk = user_id
@@ -29,9 +31,11 @@ class SharedJWTAuthentication(JWTAuthentication):
         Always return ServiceUser.
         """
         claim = settings.SIMPLE_JWT.get("USER_ID_CLAIM", "user_id")
-        user_id = validated_token.payload.get(
-            claim
-        ) or validated_token.payload.get("sub") or validated_token.payload.get("id")
+        user_id = (
+            validated_token.payload.get(claim)
+            or validated_token.payload.get("sub")
+            or validated_token.payload.get("id")
+        )
 
         if not user_id:
             raise AuthenticationFailed("User ID missing in token.")
@@ -66,21 +70,22 @@ class SharedJWTAuthentication(JWTAuthentication):
         user = self.get_user(validated_token)
         return (user, validated_token)
 
-
         # ✔ Use correct claim
         claim = settings.SIMPLE_JWT.get("USER_ID_CLAIM", "user_id")
 
         # ✔ Extract user_id safely
         user_id = (
-            payload.get(claim) or
-            payload.get("user_id") or
-            payload.get("sub") or
-            payload.get("id")
+            payload.get(claim)
+            or payload.get("user_id")
+            or payload.get("sub")
+            or payload.get("id")
         )
 
         if not user_id:
             logger.error("JWT does not contain a user_id claim")
-            raise AuthenticationFailed("Token contained no recognizable user identification")
+            raise AuthenticationFailed(
+                "Token contained no recognizable user identification"
+            )
 
         user_id = str(user_id)
 

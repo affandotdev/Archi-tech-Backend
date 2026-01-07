@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Project(models.Model):
     owner_id = models.CharField(max_length=100, db_index=True)  # auth user id (UUID)
@@ -16,21 +17,15 @@ class Project(models.Model):
     visibility = models.CharField(
         max_length=20,
         choices=[("public", "Public"), ("private", "Private")],
-        default="public"
+        default="public",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-
-
-
 class ProjectImage(models.Model):
     project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        related_name="images"
+        Project, on_delete=models.CASCADE, related_name="images"
     )
     image = models.ImageField(upload_to="portfolio/")
     order = models.IntegerField(default=0)
-

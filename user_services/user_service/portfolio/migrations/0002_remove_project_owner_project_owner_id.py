@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portfolio', '0001_initial'),
+        ("portfolio", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='project',
-            name='owner',
+            model_name="project",
+            name="owner",
         ),
         migrations.AddField(
-            model_name='project',
-            name='owner_id',
+            model_name="project",
+            name="owner_id",
             field=models.CharField(default=1, max_length=50),
             preserve_default=False,
         ),

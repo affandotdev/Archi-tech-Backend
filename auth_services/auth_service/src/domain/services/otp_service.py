@@ -1,6 +1,7 @@
 import random
-from django.utils import timezone
 from datetime import timedelta
+
+from django.utils import timezone
 from users.models import EmailOTP
 
 
@@ -16,10 +17,7 @@ class OTPService:
         expires = timezone.now() + timedelta(minutes=5)
 
         EmailOTP.objects.create(
-            email=email,
-            otp=otp,
-            purpose='registration',
-            expires_at=expires
+            email=email, otp=otp, purpose="registration", expires_at=expires
         )
 
         print("OTP:", otp)  # Replace with email sending later
@@ -27,7 +25,9 @@ class OTPService:
     @staticmethod
     def verify_registration_otp(email, otp):
         try:
-            obj = EmailOTP.objects.filter(email=email, purpose='registration').latest('created_at')
+            obj = EmailOTP.objects.filter(email=email, purpose="registration").latest(
+                "created_at"
+            )
         except EmailOTP.DoesNotExist:
             return False
 

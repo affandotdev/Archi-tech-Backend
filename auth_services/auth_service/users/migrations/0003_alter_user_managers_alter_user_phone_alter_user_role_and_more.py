@@ -6,27 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_emailotp_mfadevice'),
+        ("users", "0002_emailotp_mfadevice"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='user',
-            managers=[
-            ],
+            name="user",
+            managers=[],
         ),
         migrations.AlterField(
-            model_name='user',
-            name='phone',
+            model_name="user",
+            name="phone",
             field=models.CharField(blank=True, max_length=20, null=True),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='role',
-            field=models.CharField(choices=[('architect', 'Architect'), ('engineer', 'Engineer'), ('client', 'Client'), ('admin', 'Admin')], default='client', max_length=20),
+            model_name="user",
+            name="role",
+            field=models.CharField(
+                choices=[
+                    ("architect", "Architect"),
+                    ("engineer", "Engineer"),
+                    ("client", "Client"),
+                    ("admin", "Admin"),
+                ],
+                default="client",
+                max_length=20,
+            ),
         ),
         migrations.AddIndex(
-            model_name='emailotp',
-            index=models.Index(fields=['email', 'purpose', 'created_at'], name='users_email_email_f0c040_idx'),
+            model_name="emailotp",
+            index=models.Index(
+                fields=["email", "purpose", "created_at"],
+                name="users_email_email_f0c040_idx",
+            ),
         ),
     ]

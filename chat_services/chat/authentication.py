@@ -1,5 +1,6 @@
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+
 from .auth import decode_jwt
 
 
@@ -8,7 +9,7 @@ class JWTAuthentication(BaseAuthentication):
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
-            return None  
+            return None
         try:
             prefix, token = auth_header.split(" ")
             if prefix.lower() != "bearer":

@@ -1,19 +1,19 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from src.presentation.serializers.profile_serializer import \
+    UserProfileSerializer
 from users.models import UserProfile
-from src.presentation.serializers.profile_serializer import UserProfileSerializer
 
-from rest_framework.parsers import MultiPartParser, FormParser
 
 class UserProfileController(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user_id = request.user.id  # Extracted from JWT token decoded by UserService
-        
+
         profile, created = UserProfile.objects.get_or_create(user_id=user_id)
         serializer = UserProfileSerializer(profile)
 
@@ -41,7 +41,6 @@ class UserProfileUpdateController(APIView):
         )
 
 
-
 class UserProfileImageUploadController(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
@@ -55,14 +54,12 @@ class UserProfileImageUploadController(APIView):
 
         if not image:
             return Response(
-                {"error": "No image uploaded"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "No image uploaded"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         profile.profile_image = image
         profile.save()
 
         return Response(
-            {"message": "Image uploaded successfully"},
-            status=status.HTTP_200_OK
+            {"message": "Image uploaded successfully"}, status=status.HTTP_200_OK
         )

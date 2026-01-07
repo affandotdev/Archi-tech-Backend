@@ -1,6 +1,8 @@
-from pydantic import BaseModel
 from typing import List, Optional
+
+from pydantic import BaseModel
 from typing_extensions import Literal
+
 
 class EstimateRequest(BaseModel):
     plot_length_ft: float
@@ -19,6 +21,7 @@ class EstimateResponse(BaseModel):
     estimated_cost_lakhs: float
     assumptions: List[str]
     risks: List[str]
+
 
 class ChatRequest(BaseModel):
     prompt: str

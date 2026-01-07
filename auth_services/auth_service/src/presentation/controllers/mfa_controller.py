@@ -1,24 +1,21 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from src.common.utils.mfa_utils import gen_mfa_secret, get_totp_uri, verify_totp_token
-from users.models import MFADevice
-from drf_yasg.utils import swagger_auto_schema
-from src.presentation.serializers.auth_schemas import MFAVerifySerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
-import qrcode
 import base64
 from io import BytesIO
-from rest_framework.views import APIView
-from rest_framework.response import Response
+
+import qrcode
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
-from users.models import MFADevice
-from src.common.utils.mfa_utils import gen_mfa_secret, get_totp_uri
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from src.common.utils.mfa_utils import (gen_mfa_secret, get_totp_uri,
+                                        verify_totp_token)
+from src.presentation.serializers.auth_schemas import MFAVerifySerializer
+from users.models import MFADevice, User
 
 # ------------------------------
 # 🔹 SETUP MFA (Generate Secret + QR URL)
 # ------------------------------
+
 
 class MFASetupView(APIView):
     permission_classes = [IsAuthenticated]
@@ -42,15 +39,13 @@ class MFASetupView(APIView):
         qr_img.save(buffer, format="PNG")
         qr_base64 = base64.b64encode(buffer.getvalue()).decode()
 
-        return Response({
-            "secret": secret,
-            "otp_auth_url": uri,
-            "qr_code": qr_base64
-        })
+        return Response({"secret": secret, "otp_auth_url": uri, "qr_code": qr_base64})
+
 
 # ------------------------------
 # 🔹 VERIFY MFA
 # ------------------------------
+
 
 class VerifyMFAView(APIView):
     def post(self, request):
@@ -73,14 +68,16 @@ class VerifyMFAView(APIView):
         # Issue new token AFTER MFA
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            "message": "MFA verified",
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "role": user.role,
-            "user": {
-                "id": user.id,
-                "email": user.email,
+        return Response(
+            {
+                "message": "MFA verified",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
                 "role": user.role,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "role": user.role,
+                },
             }
-        })
+        )

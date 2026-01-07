@@ -1,10 +1,12 @@
 # follow/serializers.py
-from rest_framework import serializers
-from .models import ConnectionRequest
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
+
+from .models import ConnectionRequest
 
 User = get_user_model()
+
 
 class ConnectionRequestSerializer(serializers.ModelSerializer):
     # requester = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
@@ -16,11 +18,22 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConnectionRequest
-        fields = ("id", "requester_id", "requester_name", "requester_avatar", "requester_role", "target_id", "status", "created_at", "acted_at")
+        fields = (
+            "id",
+            "requester_id",
+            "requester_name",
+            "requester_avatar",
+            "requester_role",
+            "target_id",
+            "status",
+            "created_at",
+            "acted_at",
+        )
         read_only_fields = ("status", "created_at", "acted_at")
 
     def get_requester_name(self, obj):
         from user_profile.models import Profile
+
         try:
             profile = Profile.objects.get(auth_user_id=obj.requester_id)
             return f"{profile.first_name} {profile.last_name}".strip()
@@ -28,8 +41,9 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
             return "Unknown User"
 
     def get_requester_role(self, obj):
-         # Try to get from Profile first, else user object
+        # Try to get from Profile first, else user object
         from user_profile.models import Profile
+
         try:
             profile = Profile.objects.get(auth_user_id=obj.requester_id)
             return profile.role
@@ -38,6 +52,7 @@ class ConnectionRequestSerializer(serializers.ModelSerializer):
 
     def get_requester_avatar(self, obj):
         from user_profile.models import Profile
+
         try:
             profile = Profile.objects.get(auth_user_id=obj.requester_id)
             if profile.avatar:

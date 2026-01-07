@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsProfileOwnerOrReadOnly(permissions.BasePermission):
     """
     Safe methods allowed for all.

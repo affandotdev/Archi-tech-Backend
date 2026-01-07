@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_remove_user_username_alter_user_email'),
+        ("users", "0005_remove_user_username_alter_user_email"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mfadevice',
-            name='mfa_type',
-            field=models.CharField(choices=[('totp', 'TOTP (Authenticator App)'), ('email', 'Email'), ('sms', 'SMS')], default='totp', max_length=10),
+            model_name="mfadevice",
+            name="mfa_type",
+            field=models.CharField(
+                choices=[
+                    ("totp", "TOTP (Authenticator App)"),
+                    ("email", "Email"),
+                    ("sms", "SMS"),
+                ],
+                default="totp",
+                max_length=10,
+            ),
         ),
     ]

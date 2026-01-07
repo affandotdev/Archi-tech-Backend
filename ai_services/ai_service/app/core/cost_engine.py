@@ -14,19 +14,18 @@ def calculate_cost(
     }
 
     location_multiplier = {
-        "city": 1.2,    # Metro/City
-        "town": 1.0,    # Tier-2
-        "village": 0.8, # Rural
+        "city": 1.2,  # Metro/City
+        "town": 1.0,  # Tier-2
+        "village": 0.8,  # Rural
     }
 
-    built_up_area = plot_length_ft * plot_width_ft * floors * 0.8  
+    built_up_area = plot_length_ft * plot_width_ft * floors * 0.8
 
     cost_per_sqft = int(
-        base_cost_per_sqft[quality]
-        * location_multiplier.get(location.lower(), 1.0)
+        base_cost_per_sqft[quality] * location_multiplier.get(location.lower(), 1.0)
     )
 
-    total_cost = (built_up_area * cost_per_sqft) / 100000  
+    total_cost = (built_up_area * cost_per_sqft) / 100000
 
     assumptions = [
         "Standard structural system",
@@ -39,7 +38,9 @@ def calculate_cost(
     budget_status = None
 
     if budget_lakhs:
-        budget_status = "within_budget" if total_cost <= budget_lakhs else "exceeds_budget"
+        budget_status = (
+            "within_budget" if total_cost <= budget_lakhs else "exceeds_budget"
+        )
         if total_cost > budget_lakhs:
             risks.append("Estimated cost exceeds provided budget")
 

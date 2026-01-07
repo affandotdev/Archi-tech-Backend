@@ -56,7 +56,6 @@
 #         print("❌ Consumer crashed:", e)
 
 
-
 # import json
 # import os
 # import pika
@@ -115,11 +114,10 @@
 #     channel.start_consuming()
 
 
-
-
 import json
-import pika
 import os
+
+import pika
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -157,10 +155,7 @@ def start_profile_consumer():
 
         ALLOWED_FIELDS = {"first_name", "last_name"}
 
-        clean_changes = {
-            k: v for k, v in changes.items()
-            if k in ALLOWED_FIELDS
-        }
+        clean_changes = {k: v for k, v in changes.items() if k in ALLOWED_FIELDS}
 
         if clean_changes:
             User.objects.filter(id=user_id).update(**clean_changes)

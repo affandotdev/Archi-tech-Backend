@@ -1,6 +1,7 @@
 import json
-import time
 import os
+import time
+
 import pika
 from django.core.management.base import BaseCommand
 from user_profile.models import Profile

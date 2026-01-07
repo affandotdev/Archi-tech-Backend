@@ -1,12 +1,14 @@
+import logging
+import os
+
+import requests
 from celery import shared_task
 from django.conf import settings
-from users.models import User, ProfessionalRequest
 from reports.models import AdminDailyReport
-import requests
-import os
-import logging
+from users.models import ProfessionalRequest, User
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task(name="src.application.tasks.admin_reports.generate_daily_admin_report")
 def generate_daily_admin_report():
@@ -23,8 +25,11 @@ def generate_daily_admin_report():
 
         # 2. Fetch Remote Data (User Service)
         # Default internal URL based on docker-compose service name and port
-        user_service_url = os.getenv("USER_SERVICE_OP_STATS_URL", "http://user_service:8001/api/internal/stats/projects/")
-        
+        user_service_url = os.getenv(
+            "USER_SERVICE_OP_STATS_URL",
+            "http://127.0.0.1:8001/api/internal/stats/projects/",
+        )
+
         total_projects = 0
         try:
             response = requests.get(user_service_url, timeout=5)
@@ -32,15 +37,17 @@ def generate_daily_admin_report():
                 data = response.json()
                 total_projects = data.get("total_projects", 0)
             else:
-                logger.error(f"Failed to fetch project stats. Status: {response.status_code}, Response: {response.text}")
+                logger.error(
+                    f"Failed to fetch project stats. Status: {response.status_code}, Response: {response.text}"
+                )
         except requests.RequestException as e:
             logger.error(f"Error connecting to User Service for stats: {e}")
 
         # 3. Aggregate and Save Report
         report = AdminDailyReport.objects.create(
             total_users=total_users,
-            total_projects=total_projects, # Will be 0 if fetch fails, which is safer than breaking the report
-            total_profession_requests=total_profession_requests
+            total_projects=total_projects,  # Will be 0 if fetch fails, which is safer than breaking the report
+            total_profession_requests=total_profession_requests,
         )
 
         logger.info(f"Daily Admin Report Generated Successfully: {report}")

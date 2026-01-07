@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class AdminDailyReport(models.Model):
     total_users = models.IntegerField(default=0)
     total_projects = models.IntegerField(default=0)

@@ -82,10 +82,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # ]
 
 
-
-
-
-
 # TEMPLATES = [
 #     {
 #         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -106,7 +102,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 # # Database
 # # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 
 
 # DATABASES = {
@@ -162,9 +157,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-
-
 # SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-secret")
 # JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", SECRET_KEY)
 
@@ -178,8 +170,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # }
 
 
-
-
 # REST_FRAMEWORK = {
 #     "DEFAULT_AUTHENTICATION_CLASSES": (
 #         "user_profile.authentication.SharedJWTAuthentication",
@@ -190,10 +180,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 # }
 
 
-
+import os
 from datetime import timedelta
 from pathlib import Path
-import os
+
 from dotenv import load_dotenv
 
 # ==========================================================
@@ -217,15 +207,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "corsheaders",
     "rest_framework",
-
     # Microservice apps
     "follow",
     "portfolio",
     "professional",
-    'user_profile.apps.UserProfileConfig',
+    "user_profile.apps.UserProfileConfig",
     "user_service.apps.UserServiceConfig",
 ]
 
@@ -283,7 +271,9 @@ DATABASES = {
 # Password Validators
 # ==========================================================
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -322,9 +312,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "user_profile.authentication.SharedJWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
 

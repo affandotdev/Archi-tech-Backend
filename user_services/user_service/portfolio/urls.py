@@ -1,11 +1,8 @@
 from django.urls import path
-from .views import (
-    ProjectCreateAPIView,
-    ProjectImageUploadAPIView,
-    PublicProjectListAPIView,
-    ProjectDetailAPIView,
-    ProjectStatsAPIView,
-)
+
+from .views import (ProjectCreateAPIView, ProjectDetailAPIView,
+                    ProjectImageUploadAPIView, ProjectStatsAPIView,
+                    PublicProjectListAPIView)
 
 urlpatterns = [
     path("projects/", ProjectCreateAPIView.as_view()),

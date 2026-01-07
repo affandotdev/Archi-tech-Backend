@@ -1,6 +1,7 @@
-from django.apps import AppConfig
-import threading
 import os
+import threading
+
+from django.apps import AppConfig
 
 
 class UserServiceConfig(AppConfig):

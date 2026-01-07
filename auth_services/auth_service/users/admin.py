@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, UserProfile, EmailOTP, MFADevice
 from src.infrastructure.message_broker import publish_user_role_updated_event
+
+from .models import EmailOTP, MFADevice, User, UserProfile
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -20,7 +22,14 @@ class CustomUserAdmin(UserAdmin):
         "date_joined",
     )
 
-    list_filter = ("role", "is_verified", "has_mfa", "is_staff", "is_active", "date_joined")
+    list_filter = (
+        "role",
+        "is_verified",
+        "has_mfa",
+        "is_staff",
+        "is_active",
+        "date_joined",
+    )
 
     ordering = ("email",)
 
@@ -42,13 +51,16 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
-        ("Custom Fields", {
-            "fields": (
-                "role",
-                "is_verified",
-                "has_mfa",
-            ),
-        }),
+        (
+            "Custom Fields",
+            {
+                "fields": (
+                    "role",
+                    "is_verified",
+                    "has_mfa",
+                ),
+            },
+        ),
     )
 
     add_fieldsets = (
@@ -56,22 +68,29 @@ class CustomUserAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2", "first_name", "last_name"),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "first_name",
+                    "last_name",
+                ),
             },
         ),
-        ("Custom Fields", {
-            "fields": (
-                "role",
-                "phone",
-                "is_verified",
-                "has_mfa",
-            ),
-        }),
+        (
+            "Custom Fields",
+            {
+                "fields": (
+                    "role",
+                    "phone",
+                    "is_verified",
+                    "has_mfa",
+                ),
+            },
+        ),
     )
 
     readonly_fields = ("date_joined", "last_login")
-
-
 
     def save_model(self, request, obj, form, change):
         role_changed = False
@@ -93,34 +112,47 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "full_name", "location", "phone", "created_at", "updated_at")
+    list_display = (
+        "user",
+        "full_name",
+        "location",
+        "phone",
+        "created_at",
+        "updated_at",
+    )
     search_fields = ("user__email", "full_name", "location")
     list_filter = ("created_at", "updated_at")
     readonly_fields = ("created_at", "updated_at")
-    
+
     fieldsets = (
         (None, {"fields": ("user",)}),
-        ("Profile Information", {
-            "fields": ("full_name", "bio", "phone", "location", "profile_image")
-        }),
-        ("Professional Details", {
-            "fields": ("skills", "experience")
-        }),
-        ("Timestamps", {
-            "fields": ("created_at", "updated_at")
-        }),
+        (
+            "Profile Information",
+            {"fields": ("full_name", "bio", "phone", "location", "profile_image")},
+        ),
+        ("Professional Details", {"fields": ("skills", "experience")}),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
     )
 
 
 @admin.register(EmailOTP)
 class EmailOTPAdmin(admin.ModelAdmin):
-    list_display = ("email", "purpose", "otp", "created_at", "expires_at", "attempts", "is_expired_display")
+    list_display = (
+        "email",
+        "purpose",
+        "otp",
+        "created_at",
+        "expires_at",
+        "attempts",
+        "is_expired_display",
+    )
     search_fields = ("email", "purpose")
     list_filter = ("purpose", "created_at", "expires_at")
     readonly_fields = ("created_at", "expires_at", "attempts")
-    
+
     def is_expired_display(self, obj):
         return "Yes" if obj.is_expired() else "No"
+
     is_expired_display.short_description = "Expired"
     is_expired_display.boolean = True
 
@@ -131,18 +163,12 @@ class MFADeviceAdmin(admin.ModelAdmin):
     search_fields = ("user__email",)
     list_filter = ("confirmed", "created_at")
     readonly_fields = ("created_at",)
-    
+
     fieldsets = (
         (None, {"fields": ("user",)}),
-        ("MFA Settings", {
-            "fields": ("secret", "confirmed")
-        }),
-        ("Timestamps", {
-            "fields": ("created_at",)
-        }),
+        ("MFA Settings", {"fields": ("secret", "confirmed")}),
+        ("Timestamps", {"fields": ("created_at",)}),
     )
-
-
 
 
 # Admin registrations have been moved to auth_service.src.domain.admin

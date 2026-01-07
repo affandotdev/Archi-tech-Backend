@@ -3,7 +3,7 @@ from users.models import UserProfile
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    role = serializers.CharField(source='user.role', read_only=True)
+    role = serializers.CharField(source="user.role", read_only=True)
 
     class Meta:
         model = UserProfile

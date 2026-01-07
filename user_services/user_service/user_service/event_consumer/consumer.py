@@ -55,8 +55,6 @@
 # #     channel.start_consuming()
 
 
-
-
 # # import json
 # # import pika
 # # import os
@@ -119,8 +117,6 @@
 # #     channel.start_consuming()
 
 
-
-
 # # import json
 # # import os
 # # import time
@@ -132,7 +128,6 @@
 # # RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "admin")
 # # RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST", "/")
 # # RABBITMQ_QUEUE = os.getenv("RABBITMQ_QUEUE", "user_events")
-
 
 
 # # def start_consumer():
@@ -211,7 +206,6 @@
 # #             time.sleep(5)
 
 
-
 # # import json
 # # import os
 # # import time
@@ -264,7 +258,7 @@
 # #                         defaults={
 # #                             "first_name": event.get("first_name", ""),
 # #                             "last_name": event.get("last_name", ""),
-                           
+
 # #                         },
 # #                     )
 
@@ -304,14 +298,11 @@
 # #             time.sleep(5)
 
 
-
-
 # # import json
 # # import os
 # # import time
 # # import pika
 # # from user_profile.models import Profile
-
 
 
 # # RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
@@ -363,11 +354,10 @@
 # #             time.sleep(5)
 
 
-
-
 import json
 import os
 import time
+
 import pika
 from user_profile.models import Profile
 

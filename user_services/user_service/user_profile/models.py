@@ -1,4 +1,5 @@
 import uuid
+
 from django.db import models
 
 
@@ -25,4 +26,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile of User {self.auth_user_id}"
-

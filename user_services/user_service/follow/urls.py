@@ -1,6 +1,8 @@
 # follow/urls.py
 from django.urls import path
-from .views import SendConnectionRequest, PendingRequests, ApproveRequest, CheckAccess, ConnectedUsers, RemoveConnection
+
+from .views import (ApproveRequest, CheckAccess, ConnectedUsers,
+                    PendingRequests, RemoveConnection, SendConnectionRequest)
 
 urlpatterns = [
     path("send/", SendConnectionRequest.as_view(), name="follow-send"),

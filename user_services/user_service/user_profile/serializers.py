@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import Profile
 
 
@@ -44,16 +45,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         if obj.first_name or obj.last_name:
             return f"{obj.first_name} {obj.last_name}".strip()
         return None
-    
 
     def get_role(self, obj):
         request = self.context.get("request")
         if request and request.user and hasattr(request.user, "role"):
             return request.user.role
         return obj.role
-
-
-
 
 
 class PublicProfileSerializer(serializers.ModelSerializer):

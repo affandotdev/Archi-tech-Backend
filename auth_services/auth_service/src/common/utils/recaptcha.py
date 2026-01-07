@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 
+
 def verify_recaptcha(token):
     # print("===== RECAPTCHA CHECK START =====")
     # print("Received token:", token)
@@ -48,6 +49,6 @@ def verify_recaptcha(token):
     # except Exception as e:
     #     print("RECAPTCHA ERROR:", e)
     #     return False
-    
+
     # For now, always return True to bypass reCAPTCHA
     return True

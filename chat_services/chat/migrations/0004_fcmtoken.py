@@ -6,21 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0003_conversation_updated_at'),
+        ("chat", "0003_conversation_updated_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FCMToken',
+            name="FCMToken",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_id', models.CharField(max_length=255)),
-                ('token', models.CharField(max_length=512)),
-                ('device_type', models.CharField(default='web', max_length=50)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_id", models.CharField(max_length=255)),
+                ("token", models.CharField(max_length=512)),
+                ("device_type", models.CharField(default="web", max_length=50)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'unique_together': {('user_id', 'token')},
+                "unique_together": {("user_id", "token")},
             },
         ),
     ]

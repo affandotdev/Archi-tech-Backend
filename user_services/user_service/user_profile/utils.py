@@ -3,6 +3,7 @@ from django.conf import settings
 
 AUTH_ME_URL = "http://auth_service:8000/api/auth/me/"
 
+
 def get_auth_user_from_token(token):
     """
     Validate JWT token with auth_service and return user.

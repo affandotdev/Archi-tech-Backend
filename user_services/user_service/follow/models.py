@@ -5,6 +5,7 @@ from django.utils import timezone
 
 User = settings.AUTH_USER_MODEL  # string 'users.User' or your configured user
 
+
 class ConnectionRequest(models.Model):
     STATUS_PENDING = "pending"
     STATUS_APPROVED = "approved"
@@ -19,8 +20,10 @@ class ConnectionRequest(models.Model):
     # Decoupling from local User table to support Microservices/UUIDs
     requester_id = models.CharField(max_length=100, db_index=True)
     target_id = models.CharField(max_length=100, db_index=True)
-    
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     acted_at = models.DateTimeField(null=True, blank=True)
 

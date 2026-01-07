@@ -72,7 +72,6 @@
 # #     publish_message(message)
 
 
-
 # def publish_user_role_updated_event(user_id, role, is_verified=True):
 #     message = {
 #         "event": "USER_ROLE_UPDATED",
@@ -98,8 +97,9 @@
 
 # rabbit_publisher.py
 import json
-import os
 import logging
+import os
+
 import pika
 
 logger = logging.getLogger(__name__)
@@ -154,6 +154,7 @@ def publish_message(message: dict):
 # AUTHORITY EVENTS (ONLY THESE)
 # ============================
 
+
 def publish_user_updated_event(user_id, data: dict):
     SAFE_FIELDS = {"first_name", "last_name", "bio", "location"}
 
@@ -168,7 +169,6 @@ def publish_user_updated_event(user_id, data: dict):
         "changes": clean_data,
     }
     publish_message(message)
-
 
 
 def publish_user_role_updated_event(user_id, role, is_verified=True):

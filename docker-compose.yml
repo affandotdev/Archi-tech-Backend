@@ -602,6 +602,18 @@ services:
     networks:
       - micro_net
 
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - micro_net
+
   auth_celery_worker:
     build: ./auth_services
     container_name: auth_celery_worker

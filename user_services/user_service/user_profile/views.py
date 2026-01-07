@@ -1,13 +1,14 @@
 import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
+
+from infrastructure.message_broker import publish_profile_updated
 from rest_framework import status
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Profile
 from .serializers import ProfileSerializer
-from infrastructure.message_broker import publish_profile_updated
 
 logger = logging.getLogger(__name__)
 
@@ -39,20 +40,17 @@ class ProfileMeAPIView(APIView):
         # Calculate Connection Count
         from django.db.models import Q
         from follow.models import ConnectionRequest
-        
+
         connection_count = ConnectionRequest.objects.filter(
             (Q(requester_id=str(user_id)) | Q(target_id=str(user_id))),
-            status=ConnectionRequest.STATUS_APPROVED
+            status=ConnectionRequest.STATUS_APPROVED,
         ).count()
 
         serializer = ProfileSerializer(profile)
         data = serializer.data
-        data['connection_count'] = connection_count
+        data["connection_count"] = connection_count
 
-        return Response({
-            "message": "Profile fetched successfully",
-            "data": data
-        })
+        return Response({"message": "Profile fetched successfully", "data": data})
 
     def post(self, request):
         user_id = self.get_user_id(request)
@@ -61,7 +59,10 @@ class ProfileMeAPIView(APIView):
 
         existing = Profile.objects.filter(auth_user_id=user_id).first()
         if existing:
-            return Response(ProfileSerializer(existing, context={"request": request}).data, status=200)
+            return Response(
+                ProfileSerializer(existing, context={"request": request}).data,
+                status=200,
+            )
 
         data = request.data.copy()
         data["auth_user_id"] = user_id
@@ -88,18 +89,18 @@ class ProfileMeAPIView(APIView):
         data["auth_user_id"] = user_id
         data = process_full_name(data)
 
-        serializer = ProfileSerializer(
-            profile, data=data, context={"request": request}
-        ) if profile else ProfileSerializer(data=data, context={"request": request})
+        serializer = (
+            ProfileSerializer(profile, data=data, context={"request": request})
+            if profile
+            else ProfileSerializer(data=data, context={"request": request})
+        )
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         serializer.save()
 
-       
         publish_profile_updated(user_id, serializer.data)
-        
 
         return Response(serializer.data, status=200 if profile else 201)
 
@@ -121,22 +122,7 @@ class ProfileMeAPIView(APIView):
         serializer.save()
 
         serializer.save()
-  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-       
         publish_profile_updated(user_id, serializer.data)
 
         return Response(serializer.data, status=200)
@@ -188,7 +174,9 @@ class ProfileDetailAPIView(APIView):
             return Response({"detail": "Profile not found"}, status=404)
 
         data = process_full_name(request.data.copy())
-        serializer = ProfileSerializer(profile, data=data, partial=True, context={"request": request})
+        serializer = ProfileSerializer(
+            profile, data=data, partial=True, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

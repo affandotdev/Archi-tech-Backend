@@ -1,6 +1,7 @@
 import json
-import os
 import logging
+import os
+
 import pika
 
 logger = logging.getLogger(__name__)
@@ -50,9 +51,5 @@ def publish_message(message: dict):
 
 
 def publish_profile_updated(user_id, data: dict):
-    message = {
-        "event": "PROFILE_UPDATED",
-        "id": user_id,
-        **data
-    }
+    message = {"event": "PROFILE_UPDATED", "id": user_id, **data}
     publish_message(message)

@@ -1,19 +1,22 @@
+import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+
 from .managers import CustomUserManager
-import uuid
-from django.conf import settings
+
 
 # ---------------------------------------------------------
 # CUSTOM USER MODEL
 # ---------------------------------------------------------
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ('architect', 'Architect'),
-        ('engineer', 'Engineer'),
-        ('client', 'Client'),
-        ('admin', 'Admin'),
+        ("architect", "Architect"),
+        ("engineer", "Engineer"),
+        ("client", "Client"),
+        ("admin", "Admin"),
     )
 
     username = None
@@ -40,7 +43,7 @@ class EmailOTP(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(db_index=True)
     otp = models.CharField(max_length=6)
-    purpose = models.CharField(max_length=30, default='registration')
+    purpose = models.CharField(max_length=30, default="registration")
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     attempts = models.IntegerField(default=0)
@@ -50,7 +53,7 @@ class EmailOTP(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['email', 'purpose', 'created_at']),
+            models.Index(fields=["email", "purpose", "created_at"]),
         ]
 
 
@@ -58,7 +61,9 @@ class EmailOTP(models.Model):
 # MFA DEVICE MODEL
 # ---------------------------------------------------------
 class MFADevice(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mfa_device')
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="mfa_device"
+    )
     secret = models.CharField(max_length=64, null=True, blank=True)
     confirmed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,9 +90,6 @@ class UserProfile(models.Model):
         return self.user.email
 
 
-
-
-
 class ProfessionalRequest(models.Model):
     ROLE_CHOICES = [
         ("engineer", "Engineer"),
@@ -104,7 +106,7 @@ class ProfessionalRequest(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="professional_requests"
+        related_name="professional_requests",
     )
     requested_role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     document = models.FileField(upload_to="verification_docs/", null=True, blank=True)

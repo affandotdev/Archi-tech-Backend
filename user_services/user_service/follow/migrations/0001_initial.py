@@ -7,23 +7,46 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ConnectionRequest',
+            name="ConnectionRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('requester_id', models.CharField(db_index=True, max_length=100)),
-                ('target_id', models.CharField(db_index=True, max_length=100)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('acted_at', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("requester_id", models.CharField(db_index=True, max_length=100)),
+                ("target_id", models.CharField(db_index=True, max_length=100)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("approved", "Approved"),
+                            ("rejected", "Rejected"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("acted_at", models.DateTimeField(blank=True, null=True)),
             ],
             options={
-                'indexes': [models.Index(fields=['target_id', 'status'], name='follow_conn_target__e8e0b4_idx')],
-                'unique_together': {('requester_id', 'target_id')},
+                "indexes": [
+                    models.Index(
+                        fields=["target_id", "status"],
+                        name="follow_conn_target__e8e0b4_idx",
+                    )
+                ],
+                "unique_together": {("requester_id", "target_id")},
             },
         ),
     ]

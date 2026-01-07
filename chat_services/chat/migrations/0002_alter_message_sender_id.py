@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0001_initial'),
+        ("chat", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='message',
-            name='sender_id',
-            field=models.CharField(help_text='User ID from auth_service', max_length=255),
+            model_name="message",
+            name="sender_id",
+            field=models.CharField(
+                help_text="User ID from auth_service", max_length=255
+            ),
         ),
     ]
