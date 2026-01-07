@@ -40,4 +40,5 @@ def health_check():
 
 
 app.include_router(estimate_router, prefix="/api")
-app.include_router(explain_router, prefix="/ai")
+app.include_router(explain_router)
+
