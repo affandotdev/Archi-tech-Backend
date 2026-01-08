@@ -6,12 +6,7 @@ from kpbr_chunker import main as load_chunks  # reuse chunker logic
 
 
 def embed_and_store(chunks):
-    client = chromadb.Client(
-        Settings(
-            persist_directory="vector_store/kpbr",
-            anonymized_telemetry=False,
-        )
-    )
+    client = chromadb.PersistentClient(path="vector_store/kpbr")
 
     collection = client.get_or_create_collection(
         name="kpbr_rules"

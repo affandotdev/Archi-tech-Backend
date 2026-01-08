@@ -1,79 +1,12 @@
-# from app.core.cost_engine import calculate_cost
-# from app.llm.gemini_client import generate_response
-# from app.llm.prompts import explain_cost_prompt
-# from app.schemas.estimate import EstimateRequest
-# from fastapi import APIRouter
 
-# router = APIRouter()
-
-
-# @router.post("/explain")
-# def explain_estimate(payload: EstimateRequest):
-#     estimate = calculate_cost(**payload.dict())
-#     prompt = explain_cost_prompt(estimate)
-#     explanation = generate_response(prompt)
-
-#     return {"estimate": estimate, "explanation": explanation, "ai_assisted": True}
-
-
-# from app.schemas.estimate import ChatRequest
-
-
-# @router.post("/chat")
-# def chat_with_ai(payload: ChatRequest):
-#     response = generate_response(payload.prompt)
-#     return {"message": response, "ai_assisted": True}
-
-
-
-# from fastapi import APIRouter
-# from app.core.cost_engine import calculate_cost
-# from app.core.rag_retriever import retrieve_relevant_rules, build_rag_context
-
-# from app.llm.prompts import explain_cost_prompt
-# from app.llm.gemini_client import generate_response
-
-
-# router = APIRouter(prefix="/ai", tags=["AI"])
-
-
-
-
-# def explain_with_rag(payload: dict):
-#     cost = calculate_cost(**payload)
-
-#     # 1. Build semantic query
-#     query = "construction cost related to parking, safety, height, access"
-
-#     # 2. Retrieve rules
-#     rules = retrieve_relevant_rules(query, k=3)
-
-#     # 3. Build RAG context
-#     rag_context = build_rag_context(rules)
-
-#     # 4. Build final prompt
-#     prompt = explain_cost_prompt(
-#         cost_data=cost,
-#         regulations=rag_context
-#     )
-
-#     # 5. Gemini explains ONLY
-#     explanation = generate_response(prompt)
-
-#     return {
-#         "estimate": cost,
-#         "explanation": explanation,
-#         "rules_used": [r["rule"] for r in rules],
-#         "ai_assisted": True,
-#     }
 
 
 from fastapi import APIRouter
 
 from app.core.cost_engine import calculate_cost
 from app.core.rag_retriever import retrieve_relevant_rules, build_rag_context
-from app.llm.prompts import explain_cost_prompt
-from app.llm.gemini_client import generate_response
+from app.llm.prompts import explain_cost_prompt, CONSULTANT_SYSTEM_PROMPT
+from app.llm.ollama_client import generate_response
 from app.core.rag_retriever import (
     retrieve_relevant_rules,
     build_rag_context,
@@ -87,22 +20,55 @@ router = APIRouter(prefix="/ai", tags=["AI"])
 
 @router.post("/explain")
 def explain(payload: dict):
-    cost = calculate_cost(**payload)
+    try:
+        cost = calculate_cost(**payload)
 
-    query = "construction cost related to parking, safety, height, access"
-    rules = retrieve_relevant_rules(query, k=3)
-    rag_context = build_rag_context(rules)
+        query = "construction cost related to parking, safety, height, access"
+        try:
+            rules = retrieve_relevant_rules(query, k=5)
+            rag_context = build_rag_context(rules)
+        except Exception as e:
+            # Fallback to empty context if RAG fails
+            rag_context = "No specific regulations found."
+            rules = []
 
-    prompt = explain_cost_prompt(
-        cost_data=cost,
-        regulations=rag_context
-    )
+        prompt = explain_cost_prompt(
+            cost_data=cost,
+            regulations=rag_context
+        )
 
-    explanation = generate_response(prompt)
-    client_rules = format_rules_for_client(rules)
-    return {
-        "estimate": cost,
-        "explanation": explanation,
-        "rag_evidence": client_rules,
-        "ai_assisted": True
-    }
+        try:
+            explanation = generate_response(prompt, system=CONSULTANT_SYSTEM_PROMPT)
+        except Exception as e:
+            print(f"Ollama/AI Error: {e}")
+            from app.core.fallback import generate_fallback_explanation
+            explanation = generate_fallback_explanation(cost)
+        
+        client_rules = format_rules_for_client(rules)
+        return {
+            "estimate": cost,
+            "explanation": explanation,
+            "rag_evidence": client_rules,
+            "ai_assisted": True
+        }
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Internal Failure: {str(e)}")
+
+
+@router.post("/chat")
+def chat(payload: dict):
+    try:
+        prompt = payload.get("prompt")
+        if not prompt:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="Prompt is required")
+
+        # Use the consultant system prompt for consistent persona
+        response = generate_response(prompt, system=CONSULTANT_SYSTEM_PROMPT)
+        
+        # Frontend expects 'message' key to avoid stringifying the whole JSON
+        return {"message": response}
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"AI Chat Error: {str(e)}")

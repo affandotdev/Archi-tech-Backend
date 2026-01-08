@@ -2,13 +2,8 @@ import chromadb
 from chromadb.config import Settings
 
 
-def retrieve_relevant_rules(query: str, k: int = 3):
-    client = chromadb.Client(
-        Settings(
-            persist_directory="vector_store/kpbr",
-            anonymized_telemetry=False,
-        )
-    )
+def retrieve_relevant_rules(query: str, k: int = 5):
+    client = chromadb.PersistentClient(path="vector_store/kpbr")
 
     collection = client.get_or_create_collection(
         name="kpbr_rules"
@@ -51,11 +46,7 @@ def format_rules_for_client(rules):
     for r in rules:
         formatted.append({
             "rule": r.get("rule"),
-            "summary": (
-                r.get("text")[:250] + "..."
-                if r.get("text") and len(r.get("text")) > 250
-                else r.get("text")
-            ),
+            "summary": r.get("text"), # Returning full text
             "source": "Kerala Panchayat Building Rules"
         })
 

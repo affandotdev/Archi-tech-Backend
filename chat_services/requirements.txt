@@ -1,0 +1,11 @@
+django
+channels
+daphne
+channels_redis
+psycopg2-binary
+django-cors-headers
+djangorestframework
+python-dotenv
+redis
+requests
+firebase-admin
