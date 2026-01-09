@@ -1,6 +1,9 @@
 import requests
 
-OLLAMA_API_URL = "http://localhost:11434/api/generate"
+import os
+
+# Use host.docker.internal for Docker/Windows, or localhost for local dev
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
 # Default to llama3, but allow fallback or configuration if needed
 MODEL_NAME = "llama3" 
 
