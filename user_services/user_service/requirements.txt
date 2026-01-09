@@ -9,3 +9,4 @@ Pillow
 
 django-cors-headers
 python-dotenv
+cloudinary>=1.36.0

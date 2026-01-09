@@ -77,7 +77,6 @@ class UserProfile(models.Model):
     full_name = models.CharField(max_length=255, blank=True)
     bio = models.TextField(blank=True)
     role = models.CharField(max_length=50, blank=True, default="client")
-    profile_image = models.ImageField(upload_to="profiles/", blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=255, blank=True)
     skills = models.JSONField(default=list, blank=True)
@@ -85,6 +84,8 @@ class UserProfile(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    profile_image_url = models.URLField(blank=True, null=True)
+    profile_image_public_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.user.email

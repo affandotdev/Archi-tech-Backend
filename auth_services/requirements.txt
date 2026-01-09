@@ -37,4 +37,5 @@ Pillow
 # Celery
 celery==5.3.6
 redis==5.0.1
+cloudinary>=1.36.0
 

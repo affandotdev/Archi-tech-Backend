@@ -19,7 +19,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "bio",
             "location",
             "role",
-            "avatar",
+            "avatar_public_id",
             "avatar_url",
             "created_at",
             "updated_at",
@@ -34,12 +34,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
 
     def get_avatar_url(self, obj):
-        request = self.context.get("request")
-        if obj.avatar:
-            if request:
-                return request.build_absolute_uri(obj.avatar.url)
-            return obj.avatar.url
-        return None
+        return obj.avatar_url
 
     def get_full_name(self, obj):
         if obj.first_name or obj.last_name:
@@ -75,9 +70,4 @@ class PublicProfileSerializer(serializers.ModelSerializer):
         return f"{obj.first_name} {obj.last_name}".strip()
 
     def get_avatar_url(self, obj):
-        request = self.context.get("request")
-        if obj.avatar:
-            if request:
-                return request.build_absolute_uri(obj.avatar.url)
-            return obj.avatar.url
-        return None
+        return obj.avatar_url

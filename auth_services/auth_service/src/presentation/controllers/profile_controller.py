@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from src.presentation.serializers.profile_serializer import \
     UserProfileSerializer
 from users.models import UserProfile
-
+from src.common.utils.cloudinary_uploader import upload_to_cloudinary
 
 class UserProfileController(APIView):
     permission_classes = [IsAuthenticated]
@@ -47,19 +47,30 @@ class UserProfileImageUploadController(APIView):
 
     def post(self, request):
         user_id = request.user.id
-
         profile, created = UserProfile.objects.get_or_create(user_id=user_id)
 
         image = request.FILES.get("profile_image")
 
         if not image:
             return Response(
-                {"error": "No image uploaded"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "No image uploaded"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        profile.profile_image = image
+        # 🔹 CLOUDINARY UPLOAD (THIS IS THE NEW PART)
+        upload_result = upload_to_cloudinary(
+            image,
+            folder=f"profile_images/{user_id}"
+        )
+
+        profile.profile_image_url = upload_result["url"]
+        profile.profile_image_public_id = upload_result["public_id"]
         profile.save()
 
         return Response(
-            {"message": "Image uploaded successfully"}, status=status.HTTP_200_OK
+            {
+                "message": "Image uploaded successfully",
+                "image_url": profile.profile_image_url
+            },
+            status=status.HTTP_200_OK
         )

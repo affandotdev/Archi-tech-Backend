@@ -1,12 +1,12 @@
 import logging
-
+import cloudinary.uploader
 from infrastructure.message_broker import publish_profile_updated
 from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from .cloudinary_uploader import upload_avatar
 from .models import Profile
 from .serializers import ProfileSerializer
 
@@ -130,27 +130,40 @@ class ProfileMeAPIView(APIView):
 
 class ProfileImageUploadAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request):
-        """Upload profile image (avatar)"""
-        user_id = str(getattr(request.user, "id", None))
-        if not user_id:
-            return Response({"detail": "Unauthenticated"}, status=401)
+        auth_user_id = request.user.id  # or from JWT payload
 
-        profile = Profile.objects.filter(auth_user_id=user_id).first()
+        profile, _ = Profile.objects.get_or_create(
+            auth_user_id=str(auth_user_id)
+        )
 
-        if not profile:
-            # Create profile if it doesn't exist
-            profile = Profile.objects.create(auth_user_id=user_id)
+        image = request.FILES.get("avatar")
+        if not image:
+            return Response(
+                {"error": "No image provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if "profile_image" in request.FILES:
-            profile.avatar = request.FILES["profile_image"]
-            profile.save()
-            serializer = ProfileSerializer(profile, context={"request": request})
-            return Response(serializer.data, status=200)
-        else:
-            return Response({"error": "No image file provided"}, status=400)
+        # 🔥 DELETE OLD AVATAR (HERE, NOT IN UTILITY)
+        if profile.avatar_public_id:
+            cloudinary.uploader.destroy(profile.avatar_public_id)
+
+        # 🔥 UPLOAD NEW AVATAR
+        upload = upload_avatar(image, profile.auth_user_id)
+
+        profile.avatar_url = upload["url"]
+        profile.avatar_public_id = upload["public_id"]
+        profile.save()
+
+        return Response(
+            {
+                "message": "Avatar uploaded successfully",
+                "avatar_url": profile.avatar_url,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class ProfileDetailAPIView(APIView):

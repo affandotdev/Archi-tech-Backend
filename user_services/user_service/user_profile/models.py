@@ -17,7 +17,8 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
     location = models.CharField(max_length=255, blank=True)
-    avatar = models.ImageField(upload_to=avatar_upload_path, null=True, blank=True)
+    avatar_url = models.URLField(null=True, blank=True)
+    avatar_public_id = models.CharField(max_length=255, null=True, blank=True)
 
     role = models.CharField(max_length=20, blank=True)
 
