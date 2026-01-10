@@ -22,9 +22,13 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
-
       - name: Build and push auth_service image
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/auth_service:latest
-          docker build -t $IMAGE_URI ./auth_services
-          docker push $IMAGE_URI
+          set -e
+          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/auth_service:latest"
+          echo "Building image: $IMAGE_URI"
+          docker build -t "$IMAGE_URI" ./auth_services
+          docker push "$IMAGE_URI"
